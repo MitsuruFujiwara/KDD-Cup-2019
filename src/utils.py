@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 import requests
 
+from sklearn.metrics import f1_score
+
 #==============================================================================
 # utils
 #==============================================================================
@@ -47,3 +49,60 @@ def line_notify(message):
     headers = {'Authorization': 'Bearer ' + line_notify_token}
     line_notify = requests.post(line_notify_api, data=payload, headers=headers)
     print(message)
+
+# save pkl
+def save2pkl(path, df):
+    f = open(path, 'wb')
+    pickle.dump(df, f)
+    f.close
+
+# load pkl
+def loadpkl(path):
+    f = open(path, 'rb')
+    out = pickle.load(f)
+    return out
+
+# make dir
+def mkdir_p(path):
+    try:
+        os.stat(path)
+    except:
+        os.mkdir(path)
+
+# save multi-pkl files
+def to_pickles(df, path, split_size=3):
+    """
+    path = '../output/mydf'
+    wirte '../output/mydf/0.p'
+          '../output/mydf/1.p'
+          '../output/mydf/2.p'
+    """
+    print('shape: {}'.format(df.shape))
+
+    gc.collect()
+    mkdir_p(path)
+
+    kf = KFold(n_splits=split_size, random_state=326)
+    for i, (train_index, val_index) in enumerate(tqdm(kf.split(df))):
+        df.iloc[val_index].to_pickle(path+'/'+str(i)+'.pkl')
+    return
+
+# read multi-pkl files
+def read_pickles(path, col=None, use_tqdm=True):
+    if col is None:
+        if use_tqdm:
+            df = pd.concat([ pd.read_pickle(f) for f in tqdm(sorted(glob(path+'/*'))) ])
+        else:
+            print('reading {}'.format(path))
+            df = pd.concat([ pd.read_pickle(f) for f in sorted(glob(path+'/*')) ])
+    else:
+        df = pd.concat([ pd.read_pickle(f)[col] for f in tqdm(sorted(glob(path+'/*'))) ])
+    return df
+
+# eval function
+def eval_f(y_pred, train_data):
+    y_true = train_data.label
+    y_pred = y_pred.reshape((12, -1)).T
+    y_pred = np.argmax(y_pred, axis=1)
+    score = f1_score(y_true, y_pred, average='weighted')
+    return 'weighted-f1-score', score, True
