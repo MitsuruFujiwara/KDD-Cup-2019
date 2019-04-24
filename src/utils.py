@@ -1,4 +1,5 @@
 
+import json
 import pandas as pd
 import numpy as np
 import requests
@@ -106,3 +107,8 @@ def eval_f(y_pred, train_data):
     y_pred = np.argmax(y_pred, axis=1)
     score = f1_score(y_true, y_pred, average='weighted')
     return 'weighted-f1-score', score, True
+
+# load json
+def loadJSON(val,key):
+    val = json.loads(val)
+    return [v[key] for v in val]
