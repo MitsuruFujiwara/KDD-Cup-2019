@@ -137,28 +137,16 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
                         '../output/feature_importance_lgbm_binary.csv')
 
     if not debug:
-        # out of foldの予測値を保存
-        train_df.loc[:,'Outlier_Likelyhood'] = oof_preds
-        q_train = train_df['Outlier_Likelyhood'].quantile(.98907) # 1.0930%
-        train_df.loc[:,'outliers_pred']=train_df['Outlier_Likelyhood'].apply(lambda x: 1 if x > q_train else 0)
-        train_df.loc[train_df['outliers_pred']==1,'OOF_PRED']=-33.21928095
+        # save prediction for submit
+        test_df['pred_plan'] = (sub_preds>threshold).astype(int)
+        test_df = test_df.reset_index()
+        test_df[['sid', 'pred_plan']].to_csv(submission_file_name, index=False)
 
-        # 提出データの予測値を保存
-        test_df.loc[:,'Outlier_Likelyhood'] = sub_preds
-        q_test = test_df['Outlier_Likelyhood'].quantile(.9) # 1.0930%
-        test_df.loc[:,'outliers']=test_df['Outlier_Likelyhood'].apply(lambda x: 1 if x > q_test else 0) # trainのthreshold使います
-        test_df.loc[test_df['outliers']==1,'target']=-33.21928095
+        # save out of fold prediction
+        train_df.loc[:,'pred_plan'] = oof_preds
+        train_df = train_df.reset_index()
+        train_df[['sid', 'pred_plan']].to_csv(oof_file_name, index=False)
 
-        print('q_train: {}, q_test: {}'.format(q_train, q_test))
-
-        # merge
-        df = train_df.append(test_df)
-
-        del train_df, test_df
-        gc.collect()
-
-        # save as feather
-        to_feature(df[['outliers','Outlier_Likelyhood']], '../features')
 
 def main(debug=False):
     with timer("Load Datasets"):
@@ -181,4 +169,4 @@ if __name__ == "__main__":
     submission_file_name = "../output/submission_lgbm.csv"
     oof_file_name = "../output/oof_lgbm.csv"
     with timer("Full model run"):
-        main(debug=True)
+        main(debug=False)
