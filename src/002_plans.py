@@ -5,7 +5,7 @@ import numpy as np
 import warnings
 
 from tqdm import tqdm
-from utils import loadJSON
+from utils import loadJSON, FlattenData, save2pkl
 
 warnings.filterwarnings('ignore')
 
@@ -37,15 +37,38 @@ def main(num_rows=None):
     # reset index
     plans.reset_index(inplace=True,drop=True)
 
-    # load JSON
+    # convert json
     for key in tqdm(['distance', 'price', 'eta', 'transport_mode']):
         plans[key] = plans.plans.apply(lambda x: loadJSON(x,key))
 
-    # TODO: Preprocessing
+    # flatten
+    plans_df = [FlattenData(plans, key) for key in tqdm(['distance', 'price', 'eta', 'transport_mode'])]
+    plans_df = pd.concat(plans_df,axis=1)
+
+    # drop na
+    plans_df.dropna(inplace=True)
+
+    # merge plan_time & click_mode
+    plans_df = pd.merge(plans_df.reset_index(), plans[['sid','plan_time', 'click_mode']], on='sid',how='outer')
+
+    # set target
+    plans_df['target'] = (plans_df['transport_mode']==plans_df['click_mode']).astype(int)
+
+    # cleaning
+    plans_df['price'] = plans_df['price'].replace('',0)
+    plans_df['plan_time'] = pd.to_datetime(plans_df['plan_time'])
+
+    # datetime features
+    plans_df['weekday'] = plans_df['plan_time'].dt.weekday
+    plans_df['hour'] = plans_df['plan_time'].dt.hour
+    plans_df['weekday_count'] = plans_df['weekday'].map(plans_df['weekday'].value_counts())
+    plans_df['hour_count'] = plans_df['hour'].map(plans_df['hour'].value_counts())
+
+    # features
+    # TODO:
 
     # save as pkl
-#    save2pkl('../features/plans.pkl', plans_df)
-    print(plans)
+    save2pkl('../features/plans.pkl', plans_df)
 
 if __name__ == '__main__':
     main()

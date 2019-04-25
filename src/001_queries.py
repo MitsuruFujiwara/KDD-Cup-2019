@@ -17,9 +17,13 @@ def main(num_rows=None):
     train_queries = pd.read_csv('../input/data_set_phase1/train_queries.csv',nrows=num_rows)
     test_queries = pd.read_csv('../input/data_set_phase1/test_queries.csv',nrows=num_rows)
     train_clicks = pd.read_csv('../input/data_set_phase1/train_clicks.csv')
+    profiles = pd.read_csv('../input/data_set_phase1/profiles.csv')
 
     # merge click
     train_queries = pd.merge(train_queries, train_clicks[['sid','click_mode']], on='sid', how='outer')
+
+    # merge profiles
+    train_queries = pd.merge(train_queries, profiles, on='sid', how='outer')
 
     # fill na
     train_queries['click_mode'].fillna(0, inplace=True)
@@ -44,7 +48,7 @@ def main(num_rows=None):
     queries_df['y_o']=queries_df['o'].apply(lambda x: x.split(',')[1]).astype(float)
     queries_df['x_d']=queries_df['d'].apply(lambda x: x.split(',')[0]).astype(float)
     queries_df['y_d']=queries_df['d'].apply(lambda x: x.split(',')[1]).astype(float)
-    
+
     # TODO: Preprocessing
 
     # save as pkl

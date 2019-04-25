@@ -3,6 +3,7 @@ import json
 import pandas as pd
 import numpy as np
 import requests
+import pickle
 
 from sklearn.metrics import f1_score
 
@@ -10,7 +11,14 @@ from sklearn.metrics import f1_score
 # utils
 #==============================================================================
 
+# num folds
 NUM_FOLDS = 5
+
+# features excluded
+FEATS_EXCLUDED = ['sid', 'target', 'click_mode', 'plan_time']
+
+# categorical columns
+CAT_COLS = ['weekday', 'hour', 'transport_mode']
 
 # to feather
 def to_feature(df, path):
@@ -112,3 +120,17 @@ def eval_f(y_pred, train_data):
 def loadJSON(val,key):
     val = json.loads(val)
     return [v[key] for v in val]
+
+# flatten data
+def FlattenData(df, key):
+    tmp_df = pd.DataFrame(list(df[key]))
+    cols = tmp_df.columns.tolist()
+    tmp_df['sid'] = df['sid']
+    res_df = pd.DataFrame()
+    for c in cols:
+        _tmp_df = tmp_df[['sid',int(c)]]
+        _tmp_df.columns = ['sid',key]
+        res_df=res_df.append(_tmp_df)
+        del _tmp_df
+    res_df.set_index('sid', inplace=True)
+    return res_df
