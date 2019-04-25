@@ -52,7 +52,7 @@ def main(num_rows=None):
     plans_df = pd.merge(plans_df.reset_index(), plans[['sid','plan_time', 'click_mode']], on='sid',how='outer')
 
     # set target
-    plans_df['target'] = (plans_df['transport_mode']==plans_df['click_mode']).astype(int)
+    plans_df.loc[plans_df['click_mode'].notnull(),'target'] = (plans_df['transport_mode']==plans_df['click_mode']).astype(int)
 
     # cleaning
     plans_df['price'] = plans_df['price'].replace('',0)
@@ -65,6 +65,9 @@ def main(num_rows=None):
     plans_df['hour_count'] = plans_df['hour'].map(plans_df['hour'].value_counts())
 
     # features
+    plans_df['transport_mode_count'] = plans_df['transport_mode'].map(plans_df['transport_mode'].value_counts())
+    plans_df['transport_mode_target'] = plans_df['transport_mode'].map(plans_df.groupby('transport_mode').mean()['target'])
+
     # TODO:
 
     # save as pkl

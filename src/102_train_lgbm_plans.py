@@ -12,7 +12,7 @@ import warnings
 
 from contextlib import contextmanager
 from glob import glob
-from pandas.core.common import SettingWithCopyWarning
+from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import KFold, StratifiedKFold
 from tqdm import tqdm
 
@@ -116,7 +116,6 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
         clf.save_model('../output/lgbm_'+str(n_fold)+'_binary.txt')
 
         oof_preds[valid_idx] = clf.predict(valid_x, num_iteration=clf.best_iteration)
-        print(test_df[feats])
         sub_preds += clf.predict(test_df[feats], num_iteration=clf.best_iteration) / folds.n_splits
 
         fold_importance_df = pd.DataFrame()
@@ -129,7 +128,7 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
         gc.collect()
 
     # Full RMSEスコアの表示&LINE通知
-    full_auc = roc_auc_score(train_df['outliers'], oof_preds)
+    full_auc = roc_auc_score(train_df['target'], oof_preds)
     line_notify('Full AUC score %.6f' % full_auc)
 
     # display importances
