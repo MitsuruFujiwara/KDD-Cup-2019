@@ -71,11 +71,11 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
         # set data structure
         lgb_train = lgb.Dataset(train_x,
                                 label=train_y,
-#                                categorical_feature=CAT_COLS,
+                                categorical_feature=CAT_COLS,
                                 free_raw_data=False)
         lgb_test = lgb.Dataset(valid_x,
                                label=valid_y,
-#                               categorical_feature=CAT_COLS,
+                               categorical_feature=CAT_COLS,
                                free_raw_data=False)
 
         # params
@@ -140,13 +140,14 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
         # save prediction for submit
         test_df['pred_plan'] = (sub_preds>threshold).astype(int)
         test_df = test_df.reset_index()
-        test_df[['sid', 'pred_plan']].to_csv(submission_file_name, index=False)
+        test_df[['sid','transport_mode','pred_plan']].to_csv(submission_file_name, index=False)
 
         # save out of fold prediction
         train_df.loc[:,'pred_plan'] = oof_preds
         train_df = train_df.reset_index()
-        train_df[['sid', 'pred_plan']].to_csv(oof_file_name, index=False)
+        train_df[['sid','transport_mode','pred_plan']].to_csv(oof_file_name, index=False)
 
+        line_notify('train_lgbm finished.')
 
 def main(debug=False):
     with timer("Load Datasets"):
