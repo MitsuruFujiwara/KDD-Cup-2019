@@ -138,7 +138,7 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
 
     if not debug:
         # save prediction for submit
-        test_df['pred_plan'] = (sub_preds>threshold).astype(int)
+        test_df['pred_plan'] = sub_preds
         test_df = test_df.reset_index()
         test_df[['sid','transport_mode','pred_plan']].to_csv(submission_file_name, index=False)
 
