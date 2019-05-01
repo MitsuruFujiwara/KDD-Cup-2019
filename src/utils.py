@@ -15,10 +15,11 @@ from sklearn.metrics import f1_score
 NUM_FOLDS = 5
 
 # features excluded
-FEATS_EXCLUDED = ['sid', 'pid', 'target', 'click_mode', 'plan_time', 'req_time']
+FEATS_EXCLUDED = ['index', 'sid', 'pid', 'click_mode', 'plan_time', 'req_time']
 
 # categorical columns
-CAT_COLS = ['plan_weekday', 'hour', 'transport_mode']
+cat_cols = ['plans_{}_transport_mode'.format(i) for i in range(0,7)]
+CAT_COLS = cat_cols+['plan_weekday', 'plan_hour']
 
 # to feather
 def to_feature(df, path):

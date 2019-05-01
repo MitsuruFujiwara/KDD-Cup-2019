@@ -45,9 +45,6 @@ def main(num_rows=None):
     plans_df = [FlattenDataSimple(plans, key) for key in tqdm(['distance', 'price', 'eta', 'transport_mode'])]
     plans_df = pd.concat(plans_df,axis=1)
 
-    # drop na
-    plans_df.dropna(inplace=True)
-
     # merge plan_time & click_mode
     plans_df = pd.merge(plans_df.reset_index(), plans[['sid','plan_time', 'click_mode']], on='sid',how='outer')
 

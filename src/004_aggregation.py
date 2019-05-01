@@ -22,19 +22,19 @@ def main(num_rows=None):
     profiles = loadpkl('../features/profiles.pkl')
 
     # merge
-    df = pd.merge(df, queries, on='sid', how='outer')
-    df = pd.merge(df, profiles, on='pid', how='outer')
+    df = pd.merge(df, queries, on='sid', how='left')
+    df = pd.merge(df, profiles, on='pid', how='left')
 
     del queries, profiles
     gc.collect()
 
     # remove missing variables
-    col_missing = removeMissingVariables(df,0.75)
-    df.drop(col_missing, axis=1, inplace=True)
+#    col_missing = removeMissingVariables(df,0.75)
+#    df.drop(col_missing, axis=1, inplace=True)
 
     # remove correlated variables
-    col_drop = removeCorrelatedVariables(df,0.9)
-    df.drop(col_drop, axis=1, inplace=True)
+#    col_drop = removeCorrelatedVariables(df,0.9)
+#    df.drop(col_drop, axis=1, inplace=True)
 
     # save as feather
     to_feature(df, '../features')
