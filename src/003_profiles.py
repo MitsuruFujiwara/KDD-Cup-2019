@@ -14,16 +14,13 @@ warnings.filterwarnings('ignore')
 
 def main(num_rows=None):
     # load csv
-    train_queries = pd.read_csv('../input/data_set_phase1/train_queries.csv',nrows=num_rows)
-    test_queries = pd.read_csv('../input/data_set_phase1/test_queries.csv',nrows=num_rows)
-    train_clicks = pd.read_csv('../input/data_set_phase1/train_clicks.csv')
     profiles = pd.read_csv('../input/data_set_phase1/profiles.csv')
 
     # merge click
     train_queries = pd.merge(train_queries, train_clicks[['sid','click_mode']], on='sid', how='outer')
 
     # merge profiles
-    train_queries = pd.merge(train_queries, profiles, on='sid', how='outer')
+#    train_queries = pd.merge(train_queries, profiles, on='sid', how='outer')
 
     # fill na
     train_queries['click_mode'].fillna(0, inplace=True)

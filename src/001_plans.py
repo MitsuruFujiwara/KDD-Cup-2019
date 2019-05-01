@@ -5,7 +5,7 @@ import numpy as np
 import warnings
 
 from tqdm import tqdm
-from utils import loadJSON, FlattenData, save2pkl
+from utils import loadJSON, FlattenDataSimple, save2pkl
 
 warnings.filterwarnings('ignore')
 
@@ -42,7 +42,7 @@ def main(num_rows=None):
         plans[key] = plans.plans.apply(lambda x: loadJSON(x,key))
 
     # flatten
-    plans_df = [FlattenData(plans, key) for key in tqdm(['distance', 'price', 'eta', 'transport_mode'])]
+    plans_df = [FlattenDataSimple(plans, key) for key in tqdm(['distance', 'price', 'eta', 'transport_mode'])]
     plans_df = pd.concat(plans_df,axis=1)
 
     # drop na
@@ -51,11 +51,11 @@ def main(num_rows=None):
     # merge plan_time & click_mode
     plans_df = pd.merge(plans_df.reset_index(), plans[['sid','plan_time', 'click_mode']], on='sid',how='outer')
 
-    # set target
-    plans_df.loc[plans_df['click_mode'].notnull(),'target'] = (plans_df['transport_mode']==plans_df['click_mode']).astype(int)
-
     # cleaning
-    plans_df['price'] = plans_df['price'].replace('',0)
+    for c in plans_df.columns.to_list():
+        if 'price' in c:
+            plans_df[c] = plans_df[c].replace('',0)
+
     plans_df['plan_time'] = pd.to_datetime(plans_df['plan_time'])
 
     # datetime features
@@ -65,10 +65,7 @@ def main(num_rows=None):
     plans_df['hour_count'] = plans_df['hour'].map(plans_df['hour'].value_counts())
 
     # features
-    plans_df['transport_mode_count'] = plans_df['transport_mode'].map(plans_df['transport_mode'].value_counts())
-    plans_df['transport_mode_target'] = plans_df['transport_mode'].map(plans_df.groupby('transport_mode').mean()['target'])
-
-    # TODO:
+    # TODO: feature engineering
 
     # save as pkl
     save2pkl('../features/plans.pkl', plans_df)

@@ -134,3 +134,11 @@ def FlattenData(df, key):
         del _tmp_df
     res_df.set_index('sid', inplace=True)
     return res_df
+
+# flatten data simple
+def FlattenDataSimple(df, key):
+    res_df = pd.DataFrame(list(df[key]))
+    res_df.columns = ['plans_{}_{}'.format(c, key) for c in res_df.columns.tolist()]
+    res_df['sid'] = df['sid']
+    res_df.set_index('sid', inplace=True)
+    return res_df
