@@ -16,11 +16,11 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import KFold, StratifiedKFold
 from tqdm import tqdm
 
-from utils import line_notify, loadpkl
+from utils import line_notify, loadpkl, eval_f
 from utils import NUM_FOLDS, FEATS_EXCLUDED, CAT_COLS
 
 #==============================================================================
-# Traing LightGBM (only plans, binary classification)
+# Traing LightGBM (baseline)
 #==============================================================================
 
 warnings.filterwarnings('ignore')

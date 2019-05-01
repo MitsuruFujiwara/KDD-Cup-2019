@@ -15,10 +15,10 @@ from sklearn.metrics import f1_score
 NUM_FOLDS = 5
 
 # features excluded
-FEATS_EXCLUDED = ['sid', 'target', 'click_mode', 'plan_time']
+FEATS_EXCLUDED = ['sid', 'pid', 'target', 'click_mode', 'plan_time', 'req_time']
 
 # categorical columns
-CAT_COLS = ['weekday', 'hour', 'transport_mode']
+CAT_COLS = ['plan_weekday', 'hour', 'transport_mode']
 
 # to feather
 def to_feature(df, path):
@@ -142,3 +142,8 @@ def FlattenDataSimple(df, key):
     res_df['sid'] = df['sid']
     res_df.set_index('sid', inplace=True)
     return res_df
+
+# save json
+def to_json(data_dict, path):
+    with open(path, 'w') as f:
+        json.dump(data_dict, f, indent=4)

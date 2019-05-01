@@ -16,40 +16,17 @@ def main(num_rows=None):
     # load csv
     profiles = pd.read_csv('../input/data_set_phase1/profiles.csv')
 
-    # merge click
-    train_queries = pd.merge(train_queries, train_clicks[['sid','click_mode']], on='sid', how='outer')
+    # feature engineering
+    feats = [f for f in profiles.columns.to_list() if f not in ['pid']]
 
-    # merge profiles
-#    train_queries = pd.merge(train_queries, profiles, on='sid', how='outer')
+    profiles['p_sum'] = profiles[feats].mean(axis=1)
+    profiles['p_mean'] = profiles[feats].sum(axis=1)
+    profiles['p_std'] = profiles[feats].std(axis=1)
 
-    # fill na
-    train_queries['click_mode'].fillna(0, inplace=True)
-
-    # set test target as nan
-    test_queries['click_mode'] = np.nan
-
-    # merge train & test
-    queries_df = train_queries.append(test_queries)
-
-    del train_queries, test_queries
-    gc.collect()
-
-    # set index
-    queries_df.set_index('sid', inplace=True)
-
-    # to datetime
-    queries_df['req_time'] = pd.to_datetime(queries_df['req_time'])
-
-    # features distance
-    queries_df['x_o']=queries_df['o'].apply(lambda x: x.split(',')[0]).astype(float)
-    queries_df['y_o']=queries_df['o'].apply(lambda x: x.split(',')[1]).astype(float)
-    queries_df['x_d']=queries_df['d'].apply(lambda x: x.split(',')[0]).astype(float)
-    queries_df['y_d']=queries_df['d'].apply(lambda x: x.split(',')[1]).astype(float)
-
-    # TODO: Preprocessing
+    profiles['p_sum_count'] = profiles['p_sum'].map(profiles['p_sum'].value_counts())
 
     # save as pkl
-    save2pkl('../features/queries.pkl', queries_df)
+    save2pkl('../features/profiles.pkl', profiles)
 
 if __name__ == '__main__':
     main()

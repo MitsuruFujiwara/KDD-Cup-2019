@@ -59,10 +59,10 @@ def main(num_rows=None):
     plans_df['plan_time'] = pd.to_datetime(plans_df['plan_time'])
 
     # datetime features
-    plans_df['weekday'] = plans_df['plan_time'].dt.weekday
-    plans_df['hour'] = plans_df['plan_time'].dt.hour
-    plans_df['weekday_count'] = plans_df['weekday'].map(plans_df['weekday'].value_counts())
-    plans_df['hour_count'] = plans_df['hour'].map(plans_df['hour'].value_counts())
+    plans_df['plan_weekday'] = plans_df['plan_time'].dt.weekday
+    plans_df['plan_hour'] = plans_df['plan_time'].dt.hour
+    plans_df['plan_weekday_count'] = plans_df['plan_weekday'].map(plans_df['plan_weekday'].value_counts())
+    plans_df['plan_hour_count'] = plans_df['plan_hour'].map(plans_df['plan_hour'].value_counts())
 
     # features
     # TODO: feature engineering
