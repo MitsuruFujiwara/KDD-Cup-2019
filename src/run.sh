@@ -3,3 +3,4 @@ python 001_plans.py
 python 002_queries.py
 python 003_profiles.py
 python 004_aggregation.py
+python 101_train_lgbm.py

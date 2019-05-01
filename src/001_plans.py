@@ -67,10 +67,10 @@ def main(num_rows=None):
     cols_target = ['plans_{}_transport_mode'.format(i) for i in range(0,7)]
     cols_dummies = target_dummies.columns.to_list()
     train_plans = pd.concat([train_plans, target_dummies],axis=1)
-    for i,d in tqdm(enumerate(cols_dummies)):
-        df_g = train_plans[cols_target+cols_dummies].groupby(d).mean()
-        for c in cols_target:
-            plans_df['{}_target_{}'.format(c,i)]=plans_df[c].map(df_g[c])
+    for c in tqdm(cols_target):
+        df_g = train_plans[cols_target+cols_dummies].groupby(c).mean()
+        for i,d in enumerate(cols_dummies):
+            plans_df['{}_target_{}'.format(c,i)]=plans_df[c].map(df_g[d])
 
     # save as pkl
     save2pkl('../features/plans.pkl', plans_df)
