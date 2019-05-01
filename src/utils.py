@@ -31,6 +31,24 @@ def to_feature(df, path):
         df[[c]].to_feather('{}/{}.feather'.format(path,c))
     return
 
+# One-hot encoding for categorical columns with get_dummies
+def one_hot_encoder(df, nan_as_category = True):
+    original_columns = list(df.columns)
+    categorical_columns = [col for col in df.columns if df[col].dtype == 'object']
+    df = pd.get_dummies(df, columns= categorical_columns, dummy_na= nan_as_category)
+    new_columns = [c for c in df.columns if c not in original_columns]
+    return df, new_columns
+
+# target encoding
+def targetEncoding(train_df, col):
+    target_dummies = pd.get_dummies(train_df['click_mode'].astype(int), prefix='target')
+    train_df = pd.concat([train_df, target_dummies],axis=1)
+    for c in target_dummies.columns.to_list:
+        dict_for_map = target_dummies.groupby(col)[target].mean()
+
+    res = df[col].map(dict_for_map)
+    return res
+
 # remove correlated variables
 def removeCorrelatedVariables(data, threshold):
     print('Removing Correlated Variables...')

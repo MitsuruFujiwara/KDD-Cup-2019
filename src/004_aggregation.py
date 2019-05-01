@@ -28,6 +28,9 @@ def main(num_rows=None):
     del queries, profiles
     gc.collect()
 
+    # count features
+    df['pid_count'] = df['pid'].map(df['pid'].value_counts())
+
     # remove missing variables
 #    col_missing = removeMissingVariables(df,0.75)
 #    df.drop(col_missing, axis=1, inplace=True)

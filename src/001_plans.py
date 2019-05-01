@@ -61,8 +61,16 @@ def main(num_rows=None):
     plans_df['plan_weekday_count'] = plans_df['plan_weekday'].map(plans_df['plan_weekday'].value_counts())
     plans_df['plan_hour_count'] = plans_df['plan_hour'].map(plans_df['plan_hour'].value_counts())
 
-    # features
-    # TODO: feature engineering
+    # target encoding
+    train_plans = plans_df[plans_df['click_mode'].notnull()]
+    target_dummies=pd.get_dummies(train_plans.click_mode.astype(int), prefix='target')
+    cols_target = ['plans_{}_transport_mode'.format(i) for i in range(0,7)]
+    cols_dummies = target_dummies.columns.to_list()
+    train_plans = pd.concat([train_plans, target_dummies],axis=1)
+    for i,d in tqdm(enumerate(cols_dummies)):
+        df_g = train_plans[cols_target+cols_dummies].groupby(d).mean()
+        for c in cols_target:
+            plans_df['{}_target_{}'.format(c,i)]=plans_df[c].map(df_g[c])
 
     # save as pkl
     save2pkl('../features/plans.pkl', plans_df)

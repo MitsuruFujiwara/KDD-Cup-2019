@@ -136,13 +136,13 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
         gc.collect()
 
     # Full F1 Score & LINE Notify
-    full_f1 = f1_score(train_df['click_mode'], np.argmax(oof_preds,axis=1))
+    full_f1 = f1_score(train_df['click_mode'], np.argmax(oof_preds,axis=1),average='weighted')
     line_notify('Full F1 Score %.6f' % full_f1)
 
     # display importances
     display_importances(feature_importance_df,
-                        '../output/lgbm_importances.png',
-                        '../output/feature_importance_lgbm.csv')
+                        '../features/lgbm_importances.png',
+                        '../features/feature_importance_lgbm.csv')
 
     if not debug:
         # save prediction for submit
