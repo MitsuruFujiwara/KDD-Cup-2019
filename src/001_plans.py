@@ -87,6 +87,11 @@ def main(num_rows=None):
     plans_df['plan_eta_var'] = plans_df[cols_eta].var(axis=1)
     plans_df['plan_eta_skew'] = plans_df[cols_eta].skew(axis=1)
 
+    # count features
+    cols_mode = ['plan_{}_transport_mode'.format(i) for i in range(0,7)]
+    for c in cols_mode:
+        plans_df[c+'_count'] = plans_df[c].map(plans_df[c].value_counts())
+    
     # ratio features
     for i in range(0,7):
         plans_df['plan_{}_price_distance_ratio'.format(i)] = plans_df['plan_{}_price'.format(i)] / plans_df['plan_{}_distance'.format(i)]
