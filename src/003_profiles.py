@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 import warnings
 
+from sklearn.decomposition import TruncatedSVD
+
 from utils import save2pkl
 
 warnings.filterwarnings('ignore')
@@ -16,14 +18,27 @@ def main(num_rows=None):
     # load csv
     profiles = pd.read_csv('../input/data_set_phase1/profiles.csv')
 
+    # change columns name
+    profiles.columns = ['pid']+['profile_{}'.format(i) for i in range(0,66)]
+
     # feature engineering
     feats = [f for f in profiles.columns.to_list() if f not in ['pid']]
 
-    profiles['p_sum'] = profiles[feats].mean(axis=1)
-    profiles['p_mean'] = profiles[feats].sum(axis=1)
-    profiles['p_std'] = profiles[feats].std(axis=1)
+    profiles['profile_sum'] = profiles[feats].mean(axis=1)
+    profiles['profile_mean'] = profiles[feats].sum(axis=1)
+    profiles['profile_std'] = profiles[feats].std(axis=1)
 
-    profiles['p_sum_count'] = profiles['p_sum'].map(profiles['p_sum'].value_counts())
+    profiles['profile_sum_count'] = profiles['profile_sum'].map(profiles['profile_sum'].value_counts())
+
+    # svd features
+    svd = TruncatedSVD(n_components=20, n_iter=20, random_state=326)
+    svd_x = svd.fit_transform(profiles[feats].values)
+    svd_x = pd.DataFrame(svd_x)
+    svd_x.columns = ['profile_svd_{}'.format(i) for i in range(20)]
+    svd_x['pid'] = profiles['pid']
+
+    # merge
+    profiles = profiles.merge(svd_x, on='pid', how='left')
 
     # save as pkl
     save2pkl('../features/profiles.pkl', profiles)

@@ -61,14 +61,45 @@ def main(num_rows=None):
     plans_df['plan_weekday_count'] = plans_df['plan_weekday'].map(plans_df['plan_weekday'].value_counts())
     plans_df['plan_hour_count'] = plans_df['plan_hour'].map(plans_df['plan_hour'].value_counts())
 
+    # stats features
+    cols_distance = ['plan_{}_distance'.format(i) for i in range(0,7)]
+    cols_price = ['plan_{}_price'.format(i) for i in range(0,7)]
+    cols_eta = ['plan_{}_eta'.format(i) for i in range(0,7)]
+
+    plans_df['plan_distance_mean'] = plans_df[cols_distance].mean(axis=1)
+    plans_df['plan_distance_sum'] = plans_df[cols_distance].sum(axis=1)
+    plans_df['plan_distance_max'] = plans_df[cols_distance].max(axis=1)
+    plans_df['plan_distance_min'] = plans_df[cols_distance].min(axis=1)
+    plans_df['plan_distance_var'] = plans_df[cols_distance].var(axis=1)
+    plans_df['plan_distance_skew'] = plans_df[cols_distance].skew(axis=1)
+
+    plans_df['plan_price_mean'] = plans_df[cols_price].mean(axis=1)
+    plans_df['plan_price_sum'] = plans_df[cols_price].sum(axis=1)
+    plans_df['plan_price_max'] = plans_df[cols_price].max(axis=1)
+    plans_df['plan_price_min'] = plans_df[cols_price].min(axis=1)
+    plans_df['plan_price_var'] = plans_df[cols_price].var(axis=1)
+    plans_df['plan_price_skew'] = plans_df[cols_price].skew(axis=1)
+
+    plans_df['plan_eta_mean'] = plans_df[cols_eta].mean(axis=1)
+    plans_df['plan_eta_sum'] = plans_df[cols_eta].sum(axis=1)
+    plans_df['plan_eta_max'] = plans_df[cols_eta].max(axis=1)
+    plans_df['plan_eta_min'] = plans_df[cols_eta].min(axis=1)
+    plans_df['plan_eta_var'] = plans_df[cols_eta].var(axis=1)
+    plans_df['plan_eta_skew'] = plans_df[cols_eta].skew(axis=1)
+
+    # ratio features
+    for i in range(0,7):
+        plans_df['plan_{}_price_distance_ratio'.format(i)] = plans_df['plan_{}_price'.format(i)] / plans_df['plan_{}_distance'.format(i)]
+        plans_df['plan_{}_price_eta_ratio'.format(i)] = plans_df['plan_{}_price'.format(i)] / plans_df['plan_{}_eta'.format(i)]
+        plans_df['plan_{}_distance_eta_ratio'.format(i)] = plans_df['plan_{}_distance'.format(i)] / plans_df['plan_{}_eta'.format(i)]
+
     # target encoding
     train_plans = plans_df[plans_df['click_mode'].notnull()]
     target_dummies=pd.get_dummies(train_plans.click_mode.astype(int), prefix='target')
-    cols_target = ['plans_{}_transport_mode'.format(i) for i in range(0,7)]
     cols_dummies = target_dummies.columns.to_list()
     train_plans = pd.concat([train_plans, target_dummies],axis=1)
-    for c in tqdm(cols_target):
-        df_g = train_plans[cols_target+cols_dummies].groupby(c).mean()
+    for c in tqdm(['plan_weekday','plan_hour']):
+        df_g = train_plans[[c]+cols_dummies].groupby(c).mean()
         for i,d in enumerate(cols_dummies):
             plans_df['{}_target_{}'.format(c,i)]=plans_df[c].map(df_g[d])
 

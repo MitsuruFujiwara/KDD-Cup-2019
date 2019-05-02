@@ -18,7 +18,7 @@ NUM_FOLDS = 5
 FEATS_EXCLUDED = ['index', 'sid', 'pid', 'click_mode', 'plan_time', 'req_time']
 
 # categorical columns
-cat_cols = ['plans_{}_transport_mode'.format(i) for i in range(0,7)]
+cat_cols = ['plan_{}_transport_mode'.format(i) for i in range(0,5)]
 CAT_COLS = cat_cols+['plan_weekday', 'plan_hour']
 
 # to feather
@@ -157,7 +157,7 @@ def FlattenData(df, key):
 # flatten data simple
 def FlattenDataSimple(df, key):
     res_df = pd.DataFrame(list(df[key]))
-    res_df.columns = ['plans_{}_{}'.format(c, key) for c in res_df.columns.tolist()]
+    res_df.columns = ['plan_{}_{}'.format(c, key) for c in res_df.columns.tolist()]
     res_df['sid'] = df['sid']
     res_df.set_index('sid', inplace=True)
     return res_df
