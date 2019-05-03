@@ -22,7 +22,7 @@ def main(num_rows=None):
     profiles = loadpkl('../features/profiles.pkl')
 
     # merge
-    df = pd.merge(df, queries, on='sid', how='left')
+    df = pd.merge(df, queries, on=['sid','click_mode'], how='left')
     df = pd.merge(df, profiles, on='pid', how='left')
 
     del queries, profiles
@@ -30,6 +30,9 @@ def main(num_rows=None):
 
     # count features
     df['pid_count'] = df['pid'].map(df['pid'].value_counts())
+
+    # isnull feature
+    df['pid_isnull']=df['pid'].isnull().astype(int)
 
     # time diff
     df['plan_req_time_diff'] = (df['plan_time']-df['req_time']).astype(int)

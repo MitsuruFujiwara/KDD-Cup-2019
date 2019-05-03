@@ -20,9 +20,9 @@ def main(num_rows=None):
     train_clicks = pd.read_csv('../input/data_set_phase1/train_clicks.csv')
 
     # merge click
-    train_plans = pd.merge(train_plans, train_clicks[['sid','click_mode']], on='sid', how='outer')
+    train_plans = pd.merge(train_plans, train_clicks[['sid','click_mode']], on='sid', how='left')
 
-    # fill na
+    # fill na (no click)
     train_plans['click_mode'].fillna(0, inplace=True)
 
     # set test target as nan
@@ -58,8 +58,14 @@ def main(num_rows=None):
     # datetime features
     plans_df['plan_weekday'] = plans_df['plan_time'].dt.weekday
     plans_df['plan_hour'] = plans_df['plan_time'].dt.hour
+    plans_df['plan_weekday_hour'] = plans_df['plan_weekday'].astype(str)+'_'+plans_df['plan_hour'].astype(str)
+
+    # factorize
+    plans_df['plan_weekday_hour'], _ = pd.factorize(plans_df['plan_weekday_hour'])
+
     plans_df['plan_weekday_count'] = plans_df['plan_weekday'].map(plans_df['plan_weekday'].value_counts())
     plans_df['plan_hour_count'] = plans_df['plan_hour'].map(plans_df['plan_hour'].value_counts())
+    plans_df['plan_weekday_hour_count'] = plans_df['plan_weekday_hour'].map(plans_df['plan_weekday_hour'].value_counts())
 
     # stats features
     cols_distance = ['plan_{}_distance'.format(i) for i in range(0,7)]
@@ -91,7 +97,7 @@ def main(num_rows=None):
     cols_mode = ['plan_{}_transport_mode'.format(i) for i in range(0,7)]
     for c in cols_mode:
         plans_df[c+'_count'] = plans_df[c].map(plans_df[c].value_counts())
-    
+
     # ratio features
     for i in range(0,7):
         plans_df['plan_{}_price_distance_ratio'.format(i)] = plans_df['plan_{}_price'.format(i)] / plans_df['plan_{}_distance'.format(i)]
@@ -103,7 +109,7 @@ def main(num_rows=None):
     target_dummies=pd.get_dummies(train_plans.click_mode.astype(int), prefix='target')
     cols_dummies = target_dummies.columns.to_list()
     train_plans = pd.concat([train_plans, target_dummies],axis=1)
-    for c in tqdm(['plan_weekday','plan_hour']):
+    for c in tqdm(['plan_weekday','plan_hour','plan_weekday_hour']):
         df_g = train_plans[[c]+cols_dummies].groupby(c).mean()
         for i,d in enumerate(cols_dummies):
             plans_df['{}_target_{}'.format(c,i)]=plans_df[c].map(df_g[d])

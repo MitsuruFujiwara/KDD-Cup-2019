@@ -16,6 +16,16 @@ def main(num_rows=None):
     # load csv
     train_queries = pd.read_csv('../input/data_set_phase1/train_queries.csv',nrows=num_rows)
     test_queries = pd.read_csv('../input/data_set_phase1/test_queries.csv',nrows=num_rows)
+    train_clicks = pd.read_csv('../input/data_set_phase1/train_clicks.csv')
+
+    # merge click
+    train_queries = pd.merge(train_queries, train_clicks[['sid','click_mode']], on='sid', how='left')
+
+    # fill na (no click)
+    train_queries['click_mode'].fillna(0, inplace=True)
+
+    # set test target as nan
+    test_queries['click_mode'] = np.nan
 
     # merge train & test
     queries_df = train_queries.append(test_queries)
