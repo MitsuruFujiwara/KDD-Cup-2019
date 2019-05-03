@@ -12,7 +12,7 @@ from sklearn.metrics import f1_score
 #==============================================================================
 
 # num folds
-NUM_FOLDS = 10
+NUM_FOLDS = 5
 
 # features excluded
 FEATS_EXCLUDED = ['index', 'sid', 'pid', 'click_mode', 'plan_time', 'req_time']

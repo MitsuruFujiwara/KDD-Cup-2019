@@ -172,6 +172,7 @@ def main(debug=False):
         # split train & test
         train_df = df[df['click_mode'].notnull()]
         test_df = df[df['click_mode'].isnull()]
+
         del df
         gc.collect()
 
