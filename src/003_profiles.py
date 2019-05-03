@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import warnings
 
-from sklearn.decomposition import TruncatedSVD
+from sklearn.decomposition import TruncatedSVD, NMF
 
 from utils import save2pkl
 
@@ -39,6 +39,16 @@ def main(num_rows=None):
 
     # merge
     profiles = profiles.merge(svd_x, on='pid', how='left')
+
+    # NMF features
+    nmf = NMF(n_components=20, init='random', random_state=326)
+    nmf_x = nmf.fit_transform(profiles[feats].values)
+    nmf_x = pd.DataFrame(nmf_x)
+    nmf_x.columns = ['profile_nmf_{}'.format(i) for i in range(20)]
+    nmf_x['pid'] = profiles['pid']
+
+    # merge
+    profiles = profiles.merge(nmf_x, on='pid', how='left')
 
     # save as pkl
     save2pkl('../features/profiles.pkl', profiles)

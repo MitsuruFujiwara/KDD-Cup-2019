@@ -64,7 +64,7 @@ def main(num_rows=None):
     # TODO: Preprocessing
 
     # drop string features
-    queries_df.drop(['o','d','x_o','y_o','x_d','y_d','o_d'], axis=1, inplace=True)
+    queries_df.drop(['o','d','o_d'], axis=1, inplace=True)
 
     # save as pkl
     save2pkl('../features/queries.pkl', queries_df)
