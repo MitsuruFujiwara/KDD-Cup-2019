@@ -7,6 +7,7 @@ import numpy as np
 import os
 import pandas as pd
 import seaborn as sns
+import sys
 import time
 import warnings
 
@@ -16,7 +17,7 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold, StratifiedKFold
 from tqdm import tqdm
 
-from utils import line_notify, loadpkl, eval_f
+from utils import line_notify, loadpkl, save2pkl
 from utils import NUM_FOLDS, FEATS_EXCLUDED, CAT_COLS
 
 #==============================================================================
@@ -71,11 +72,11 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
         # set data structure
         lgb_train = lgb.Dataset(train_x,
                                 label=train_y,
-                                categorical_feature=CAT_COLS,
+#                                categorical_feature=CAT_COLS,
                                 free_raw_data=False)
         lgb_test = lgb.Dataset(valid_x,
                                label=valid_y,
-                               categorical_feature=CAT_COLS,
+#                               categorical_feature=CAT_COLS,
                                free_raw_data=False)
 
         # params
@@ -86,14 +87,14 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
                 'boosting': 'gbdt',
                 'objective': 'multiclass',
                 'metric': 'multiclass',
-                'learning_rate': 0.05,
-                'num_leaves': 31,
-                'lambda_l1': 0.01,
-                'lambda_l2': 10,
-                'num_class': 12,
-                'feature_fraction': 0.8,
-                'bagging_fraction': 0.8,
-                'bagging_freq': 4,
+                'learning_rate': 0.01,
+#                'num_leaves': 31,
+#                'lambda_l1': 0.01,
+#                'lambda_l2': 10,
+#                'num_class': 12,
+#                'feature_fraction': 0.8,
+#                'bagging_fraction': 0.8,
+#                'bagging_freq': 4,
 #                'num_leaves': 31,
 #                'colsample_bytree': 0.20461151519044,
 #                'subsample': 0.805742797052828,
@@ -121,7 +122,7 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
                         )
 
         # save model
-        clf.save_model('../output/lgbm_'+str(n_fold)+'.txt')
+        clf.save_model('../output/lgbm_queries_{}.txt'.format(n_fold))
 
         oof_preds[valid_idx] = clf.predict(valid_x, num_iteration=clf.best_iteration)
         sub_preds += clf.predict(test_df[feats], num_iteration=clf.best_iteration) / folds.n_splits
@@ -141,27 +142,31 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
 
     # display importances
     display_importances(feature_importance_df,
-                        '../features/lgbm_importances.png',
-                        '../features/feature_importance_lgbm.csv')
+                        '../features/lgbm_importances_queries.png',
+                        '../features/feature_importance_lgbm_queries.csv')
 
     if not debug:
         # save prediction for submit
-        test_df['recommend_mode'] = np.argmax(sub_preds, axis=1)
-        test_df = test_df.reset_index()
-        test_df[['sid','recommend_mode']].to_csv(submission_file_name, index=False)
+        test_df['pred_queries'] = np.argmax(sub_preds, axis=1)
 
         # save out of fold prediction
-        train_df.loc[:,'recommend_mode'] = np.argmax(oof_preds, axis=1)
-        train_df = train_df.reset_index()
-        train_df[['sid','click_mode','recommend_mode']].to_csv(oof_file_name, index=False)
+        train_df['pred_queries'] = np.argmax(oof_preds, axis=1)
 
-        line_notify('train_lgbm finished.')
+        # merge
+        df = train_df.append(test_df)
+
+        del train_df, test_df
+        gc.collect()
+
+        # save as pkl
+        save2pkl('../features/queries_pred.pkl', df)
+
+        line_notify('{} finished.'.format(sys.argv[0]))
 
 def main(debug=False):
     with timer("Load Datasets"):
-        # load feathers
-        files = sorted(glob('../features/*.feather'))
-        df = pd.concat([pd.read_feather(f) for f in tqdm(files, mininterval=60)], axis=1)
+        # load pkl
+        df = loadpkl('../features/queries.pkl')
 
         # use selected features
         df = df[configs['features']]
@@ -182,8 +187,8 @@ def main(debug=False):
         kfold_lightgbm(train_df, test_df, num_folds=NUM_FOLDS, stratified=True, debug=debug)
 
 if __name__ == "__main__":
-    submission_file_name = "../output/submission_lgbm.csv"
-    oof_file_name = "../output/oof_lgbm.csv"
+    submission_file_name = "../output/submission_lgbm_queries.csv"
+    oof_file_name = "../output/oof_lgbm_queries.csv"
     configs = json.load(open('../configs/102_lgbm.json'))
     with timer("Full model run"):
-        main(debug=False)
+        main(debug=True)

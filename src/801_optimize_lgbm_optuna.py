@@ -46,7 +46,7 @@ def objective(trial):
     params = {'objective': 'multiclass',
               'metric': 'multiclass',
               'verbosity': -1,
-              'learning_rate': 0.05,
+              'learning_rate': 0.01,
               'num_class': 12,
               'device': 'gpu',
               'boosting_type': 'gbdt',

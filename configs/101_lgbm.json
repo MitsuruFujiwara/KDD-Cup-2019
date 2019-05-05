@@ -186,7 +186,6 @@
         "profile_nmf_5",
         "profile_nmf_16",
         "pid_count",
-        "pid_isnull",
         "plan_req_time_diff"
     ]
 }
