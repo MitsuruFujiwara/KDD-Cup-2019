@@ -6,7 +6,7 @@ import warnings
 
 from sklearn.decomposition import TruncatedSVD, NMF
 
-from utils import save2pkl
+from utils import save2pkl, loadpkl
 
 warnings.filterwarnings('ignore')
 
@@ -15,8 +15,9 @@ warnings.filterwarnings('ignore')
 #==============================================================================
 
 def main(num_rows=None):
-    # load csv
+    # load csv & pkl
     profiles = pd.read_csv('../input/data_set_phase1/profiles.csv')
+    queries = loadpkl('../features/queries.pkl')
 
     # change columns name
     profiles.columns = ['pid']+['profile_{}'.format(i) for i in range(0,66)]
