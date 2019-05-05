@@ -25,8 +25,8 @@ def main(num_rows=None):
 
     # merge
     df = pd.merge(df, queries, on=['sid','click_mode'], how='left')
+    df = pd.merge(df, queries_pred, on='sid', how='left')
     df = pd.merge(df, profiles, on='pid', how='left')
-    df = pd.merge(df, queries_pred, on='pid', how='left')
 #    df = pd.merge(df, profiles_pred, on='pid', how='left')
 
     del queries, profiles, queries_pred
