@@ -141,8 +141,8 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
 
     # display importances
     display_importances(feature_importance_df,
-                        '../features/lgbm_importances.png',
-                        '../features/feature_importance_lgbm.csv')
+                        '../imp/lgbm_importances.png',
+                        '../imp/feature_importance_lgbm.csv')
 
     if not debug:
         # save prediction for submit

@@ -197,6 +197,17 @@
         "profile_svd_19",
         "profile_nmf_5",
         "profile_nmf_16",
+        "pred_plans0",
+        "pred_plans1",
+        "pred_plans2",
+        "pred_plans3",
+        "pred_plans4",
+        "pred_plans6",
+        "pred_plans7",
+        "pred_plans8",
+        "pred_plans9",
+        "pred_plans10",
+        "pred_plans11",
         "pid_count",
         "plan_req_time_diff"
     ]
