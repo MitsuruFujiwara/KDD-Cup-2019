@@ -5,6 +5,7 @@ import lightgbm
 import numpy as np
 import optuna
 import pandas as pd
+import sys
 
 from glob import glob
 from sklearn.model_selection import KFold, StratifiedKFold
@@ -18,11 +19,10 @@ from utils import FEATS_EXCLUDED, loadpkl, line_notify
 #==============================================================================
 
 # load datasets
-CONFIGS = json.load(open('../configs/101_lgbm.json'))
+CONFIGS = json.load(open('../configs/102_lgbm.json'))
 
 # load feathers
-FILES = sorted(glob('../features/*.feather'))
-DF = pd.concat([pd.read_feather(f) for f in tqdm(FILES, mininterval=60)], axis=1)
+DF = loadpkl('../features/queries.pkl')
 
 # split train & test
 TRAIN_DF = DF[DF['click_mode'].notnull()]
@@ -102,8 +102,4 @@ if __name__ == '__main__':
     hist_df = study.trials_dataframe()
     hist_df.to_csv("../output/optuna_result_lgbm.csv")
 
-    # save json
-    CONFIGS['params'] = trial.params
-    to_json(CONFIGS, '../configs/201_lgbm.json')
-
-    line_notify('optuna LightGBM finished. Value: {}'.format(trial.value))
+    line_notify('{} finished. Value: {}'.format(sys.argv[0],trial.value))

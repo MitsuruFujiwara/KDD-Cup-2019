@@ -1,0 +1,17 @@
+{
+    "features": [
+        "sid",
+        "click_mode",
+        "x_o",
+        "y_o",
+        "x_d",
+        "y_d",
+        "queries_o_count",
+        "queries_d_count",
+        "queries_x_o_count",
+        "queries_y_o_count",
+        "queries_x_d_count",
+        "queries_y_d_count",
+        "queries_o_d_count"
+    ]
+}

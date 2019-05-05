@@ -190,6 +190,6 @@ def main(debug=False):
 if __name__ == "__main__":
     submission_file_name = "../output/submission_lgbm_queries.csv"
     oof_file_name = "../output/oof_lgbm_queries.csv"
-    configs = json.load(open('../configs/102_lgbm.json'))
+    configs = json.load(open('../configs/103_lgbm.json'))
     with timer("Full model run"):
         main(debug=False)
