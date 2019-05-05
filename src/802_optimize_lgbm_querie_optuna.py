@@ -19,7 +19,7 @@ from utils import FEATS_EXCLUDED, loadpkl, line_notify
 #==============================================================================
 
 # load datasets
-CONFIGS = json.load(open('../configs/102_lgbm.json'))
+CONFIGS = json.load(open('../configs/103_lgbm.json'))
 
 # load feathers
 DF = loadpkl('../features/queries.pkl')
@@ -46,7 +46,7 @@ def objective(trial):
     params = {'objective': 'multiclass',
               'metric': 'multiclass',
               'verbosity': -1,
-              'learning_rate': 0.01,
+              'learning_rate': 0.05,
               'num_class': 12,
               'device': 'gpu',
               'boosting_type': 'gbdt',
@@ -81,7 +81,7 @@ def objective(trial):
                                   seed=326,
                                  )
     gc.collect()
-    return -eval_dict['multi_logloss-mean'][-1]
+    return eval_dict['multi_logloss-mean'][-1]
 
 if __name__ == '__main__':
     study = optuna.create_study()
@@ -101,5 +101,9 @@ if __name__ == '__main__':
     # save result
     hist_df = study.trials_dataframe()
     hist_df.to_csv("../output/optuna_result_lgbm.csv")
+
+    # save json
+    CONFIGS['params'] = trial.params
+    to_json(CONFIGS, '../configs/103_lgbm.json')
 
     line_notify('{} finished. Value: {}'.format(sys.argv[0],trial.value))

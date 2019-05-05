@@ -81,7 +81,7 @@ def objective(trial):
                                   seed=326,
                                  )
     gc.collect()
-    return -eval_dict['multi_logloss-mean'][-1]
+    return eval_dict['multi_logloss-mean'][-1]
 
 if __name__ == '__main__':
     study = optuna.create_study()
@@ -104,6 +104,6 @@ if __name__ == '__main__':
 
     # save json
     CONFIGS['params'] = trial.params
-    to_json(CONFIGS, '../configs/201_lgbm.json')
+    to_json(CONFIGS, '../configs/101_lgbm.json')
 
     line_notify('optuna LightGBM finished. Value: {}'.format(trial.value))
