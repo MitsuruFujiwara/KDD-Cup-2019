@@ -20,6 +20,7 @@
         "click_mode",
         "plan_weekday",
         "plan_hour",
+        "plan_time_diff",
         "plan_weekday_count",
         "plan_hour_count",
         "plan_distance_var",

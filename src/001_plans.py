@@ -59,6 +59,7 @@ def main(num_rows=None):
     plans_df['plan_weekday'] = plans_df['plan_time'].dt.weekday
     plans_df['plan_hour'] = plans_df['plan_time'].dt.hour
     plans_df['plan_weekday_hour'] = plans_df['plan_weekday'].astype(str)+'_'+plans_df['plan_hour'].astype(str)
+    plans_df['plan_time_diff'] = plans_df.index.map(plans_df.sort_values('plan_time')['plan_time'].diff().dt.seconds)
 
     # factorize
     plans_df['plan_weekday_hour'], _ = pd.factorize(plans_df['plan_weekday_hour'])

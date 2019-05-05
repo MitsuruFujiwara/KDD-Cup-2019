@@ -20,12 +20,16 @@ def main(num_rows=None):
     df = loadpkl('../features/plans.pkl')
     queries = loadpkl('../features/queries.pkl')
     profiles = loadpkl('../features/profiles.pkl')
+    queries_pred = loadpkl('../features/queries_pred.pkl')
+#    profiles_pred = loadpkl('../features/profiles_pred.pkl')
 
     # merge
     df = pd.merge(df, queries, on=['sid','click_mode'], how='left')
     df = pd.merge(df, profiles, on='pid', how='left')
+    df = pd.merge(df, queries_pred, on='pid', how='left')
+#    df = pd.merge(df, profiles_pred, on='pid', how='left')
 
-    del queries, profiles
+    del queries, profiles, queries_pred
     gc.collect()
 
     # count features

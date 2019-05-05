@@ -91,7 +91,7 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
 #                'num_leaves': 31,
 #                'lambda_l1': 0.01,
 #                'lambda_l2': 10,
-#                'num_class': 12,
+                'num_class': 12,
 #                'feature_fraction': 0.8,
 #                'bagging_fraction': 0.8,
 #                'bagging_freq': 4,
@@ -142,21 +142,22 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
 
     # display importances
     display_importances(feature_importance_df,
-                        '../features/lgbm_importances_queries.png',
-                        '../features/feature_importance_lgbm_queries.csv')
+                        '../imp/lgbm_importances_queries.png',
+                        '../imp/feature_importance_lgbm_queries.csv')
 
     if not debug:
         # save prediction for submit
-        test_df['pred_queries'] = np.argmax(sub_preds, axis=1)
+        sub_preds = pd.DataFrame(sub_preds)
+        sub_preds.columns = ['pred_queries{}'.format(c) for c in sub_preds.columns]
+        sub_preds['sid'] = test_df.index
 
         # save out of fold prediction
-        train_df['pred_queries'] = np.argmax(oof_preds, axis=1)
+        oof_preds = pd.DataFrame(oof_preds)
+        oof_preds.columns = ['pred_queries{}'.format(c) for c in oof_preds.columns]
+        oof_preds['sid'] = train_df.index
 
         # merge
-        df = train_df.append(test_df)
-
-        del train_df, test_df
-        gc.collect()
+        df = oof_preds.append(sub_preds)
 
         # save as pkl
         save2pkl('../features/queries_pred.pkl', df)
@@ -191,4 +192,4 @@ if __name__ == "__main__":
     oof_file_name = "../output/oof_lgbm_queries.csv"
     configs = json.load(open('../configs/102_lgbm.json'))
     with timer("Full model run"):
-        main(debug=True)
+        main(debug=False)
