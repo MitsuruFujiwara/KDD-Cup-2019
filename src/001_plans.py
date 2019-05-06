@@ -58,7 +58,7 @@ def main(num_rows=None):
     # datetime features
     plans_df['plan_weekday'] = plans_df['plan_time'].dt.weekday
     plans_df['plan_hour'] = plans_df['plan_time'].dt.hour
-    plans_df['plan_weekday_hour'] = plans_df['plan_weekday'].astype(str)+'_'+plans_df['plan_hour'].astype(str)
+#    plans_df['plan_weekday_hour'] = plans_df['plan_weekday'].astype(str)+'_'+plans_df['plan_hour'].astype(str)
     plans_df['plan_time_diff'] = plans_df.index.map(plans_df.sort_values('plan_time')['plan_time'].diff().dt.seconds)
 
     # factorize
@@ -93,6 +93,22 @@ def main(num_rows=None):
     plans_df['plan_eta_min'] = plans_df[cols_eta].min(axis=1)
     plans_df['plan_eta_var'] = plans_df[cols_eta].var(axis=1)
     plans_df['plan_eta_skew'] = plans_df[cols_eta].skew(axis=1)
+
+    # min-max plan (categorical)
+    plans_df['plan_distance_max_plan'] = plans_df[cols_distance].idxmax(axis=1)
+    plans_df['plan_distance_min_plan'] = plans_df[cols_distance].idxmin(axis=1)
+    plans_df['plan_price_max_plan'] = plans_df[cols_price].idxmax(axis=1)
+    plans_df['plan_price_min_plan'] = plans_df[cols_price].idxmin(axis=1)
+    plans_df['plan_eta_max_plan'] = plans_df[cols_eta].idxmax(axis=1)
+    plans_df['plan_eta_min_plan'] = plans_df[cols_eta].idxmin(axis=1)
+
+    # factorize
+    plans_df['plan_distance_max_plan'], _ = pd.factorize(plans_df['plan_distance_max_plan'])
+    plans_df['plan_distance_min_plan'], _ = pd.factorize(plans_df['plan_distance_min_plan'])
+    plans_df['plan_price_max_plan'], _ = pd.factorize(plans_df['plan_price_max_plan'])
+    plans_df['plan_price_min_plan'], _ = pd.factorize(plans_df['plan_price_min_plan'])
+    plans_df['plan_eta_max_plan'], _ = pd.factorize(plans_df['plan_eta_max_plan'])
+    plans_df['plan_eta_min_plan'], _ = pd.factorize(plans_df['plan_eta_min_plan'])
 
     # count features
     cols_mode = ['plan_{}_transport_mode'.format(i) for i in range(0,7)]

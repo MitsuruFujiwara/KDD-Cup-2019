@@ -36,7 +36,7 @@ def main(num_rows=None):
     df['pid_count'] = df['pid'].map(df['pid'].value_counts())
 
     # isnull feature
-    df['pid_isnull']=df['pid'].isnull().astype(int)
+#    df['pid_isnull']=df['pid'].isnull().astype(int)
 
     # time diff
     df['plan_req_time_diff'] = (df['plan_time']-df['req_time']).astype(int)
