@@ -11,7 +11,7 @@ from glob import glob
 from sklearn.model_selection import KFold, StratifiedKFold
 from tqdm import tqdm
 
-from utils import FEATS_EXCLUDED, loadpkl, line_notify
+from utils import FEATS_EXCLUDED, loadpkl, line_notify, to_json
 
 #==============================================================================
 # hyper parameter optimization by optuna
@@ -100,7 +100,7 @@ if __name__ == '__main__':
 
     # save result
     hist_df = study.trials_dataframe()
-    hist_df.to_csv("../output/optuna_result_lgbm.csv")
+    hist_df.to_csv("../output/optuna_result_lgbm_querie.csv")
 
     # save json
     CONFIGS['params'] = trial.params

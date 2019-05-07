@@ -21,15 +21,17 @@ def main(num_rows=None):
     queries = loadpkl('../features/queries.pkl')
     profiles = loadpkl('../features/profiles.pkl')
     queries_pred = loadpkl('../features/queries_pred.pkl')
+    queries_profiles_pred = loadpkl('../features/queries_profiles_pred.pkl')
 #    plans_pred = loadpkl('../features/plans_pred.pkl')
 
     # merge
     df = pd.merge(df, queries, on=['sid','click_mode'], how='left')
     df = pd.merge(df, queries_pred, on='sid', how='left')
+    df = pd.merge(df, queries_profiles_pred, on='sid', how='left')
     df = pd.merge(df, profiles, on='pid', how='left')
 #    df = pd.merge(df, plans_pred, on='sid', how='left')
 
-    del queries, profiles, queries_pred
+    del queries, profiles, queries_pred, queries_profiles_pred
     gc.collect()
 
     # count features
@@ -57,7 +59,7 @@ def main(num_rows=None):
     df.drop(col_missing, axis=1, inplace=True)
 
     # remove correlated variables
-    col_drop = removeCorrelatedVariables(df,0.9)
+    col_drop = removeCorrelatedVariables(df,0.95)
     df.drop(col_drop, axis=1, inplace=True)
 
     # save as feather

@@ -12,6 +12,11 @@
         "queries_y_o_count",
         "queries_x_d_count",
         "queries_y_d_count",
-        "queries_o_d_count"
+        "queries_distance",
+        "queries_o_d_count",
+        "queries_weekday",
+        "queries_hour",
+        "queries_weekday_count",
+        "queries_hour_count"
     ]
 }
