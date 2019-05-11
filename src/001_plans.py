@@ -180,11 +180,13 @@ def main(num_rows=None):
     plans_df['plan_distance_eta_ratio_min_plan_count'] = plans_df['plan_distance_eta_ratio_min_plan'].map(plans_df['plan_distance_eta_ratio_min_plan'].value_counts())
 
     # target encoding
+    cols_transport_mode = ['plan_{}_transport_mode'.format(i) for i in range(0,5)]
+
     train_plans = plans_df[plans_df['click_mode'].notnull()]
     target_dummies=pd.get_dummies(train_plans.click_mode.astype(int), prefix='target')
     cols_dummies = target_dummies.columns.to_list()
     train_plans = pd.concat([train_plans, target_dummies],axis=1)
-    for c in tqdm(['plan_weekday','plan_hour','plan_weekday_hour']):
+    for c in tqdm(['plan_weekday','plan_hour','plan_weekday_hour']+cols_transport_mode):
         df_g = train_plans[[c]+cols_dummies].groupby(c).mean()
         for i,d in enumerate(cols_dummies):
             plans_df['{}_target_{}'.format(c,i)]=plans_df[c].map(df_g[d])

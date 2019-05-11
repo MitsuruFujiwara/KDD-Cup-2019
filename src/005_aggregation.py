@@ -43,6 +43,12 @@ def main(num_rows=None):
     # time diff
     df['plan_req_time_diff'] = (df['plan_time']-df['req_time']).astype(int)
 
+    # distance ratio
+    cols_plan_distance = ['plan_{}_distance'.format(i) for i in range(0,7)]
+
+    for i, c in enumerate(cols_plan_distance):
+        df['plan_queries_distance_ratio{}'.format(i)] = df[c] / df['queries_distance']
+
     # target encoding
     """
     train_df = df[df['click_mode'].notnull()]
