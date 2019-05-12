@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 import warnings
 
+from sklearn.decomposition import TruncatedSVD
+
 from utils import save2pkl
 
 warnings.filterwarnings('ignore')
@@ -60,7 +62,7 @@ def main(num_rows=None):
     queries_df['queries_hour'] = queries_df['req_time'].dt.hour
     queries_df['queries_weekday_count'] = queries_df['queries_weekday'].map(queries_df['queries_weekday'].value_counts())
     queries_df['queries_hour_count'] = queries_df['queries_hour'].map(queries_df['queries_hour'].value_counts())
-
+    
     # TODO: Preprocessing
 
     # drop string features
