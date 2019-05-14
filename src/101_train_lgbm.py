@@ -149,6 +149,10 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
         # save prediction for submit
         test_df['recommend_mode'] = np.argmax(sub_preds, axis=1)
         test_df = test_df.reset_index()
+
+        # post processing
+        test_df['recommend_mode'][(df['plan_num_plans']==1)&(df['click_mode']!=0)] = df['plan_0_transport_mode'][(df['plan_num_plans']==1)&(df['click_mode']!=0)]
+
         test_df[['sid','recommend_mode']].to_csv(submission_file_name, index=False)
 
         # save out of fold prediction

@@ -123,6 +123,10 @@ def main(num_rows=None):
     for c in cols_mode:
         plans_df[c+'_count'] = plans_df[c].map(plans_df[c].value_counts())
 
+    # number features
+    plans_df['plan_num_plans'] = plans_df[cols_mode].notnull().sum(axis=1)
+    plans_df['plan_num_free_plans'] = (plans_df[cols_price]==0).sum(axis=1)
+
     # ratio features
     for i in range(0,7):
         plans_df['plan_{}_price_distance_ratio'.format(i)] = plans_df['plan_{}_price'.format(i)] / plans_df['plan_{}_distance'.format(i)]
@@ -186,7 +190,8 @@ def main(num_rows=None):
     target_dummies=pd.get_dummies(train_plans.click_mode.astype(int), prefix='target')
     cols_dummies = target_dummies.columns.to_list()
     train_plans = pd.concat([train_plans, target_dummies],axis=1)
-    for c in tqdm(['plan_weekday','plan_hour','plan_weekday_hour']+cols_transport_mode):
+    cols_target_encoding = ['plan_weekday','plan_hour','plan_weekday_hour', 'plan_num_plans', 'plan_num_free_plans']
+    for c in tqdm(cols_target_encoding+cols_transport_mode):
         df_g = train_plans[[c]+cols_dummies].groupby(c).mean()
         for i,d in enumerate(cols_dummies):
             plans_df['{}_target_{}'.format(c,i)]=plans_df[c].map(df_g[d])
