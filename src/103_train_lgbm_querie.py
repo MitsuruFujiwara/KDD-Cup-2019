@@ -81,7 +81,7 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
 
         # params
         params ={
-                'device' : 'gpu',
+#                'device' : 'gpu',
 #                'gpu_use_dp':True,
                 'task': 'train',
                 'boosting': 'gbdt',

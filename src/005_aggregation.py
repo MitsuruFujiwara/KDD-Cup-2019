@@ -21,24 +21,17 @@ def main(num_rows=None):
     queries = loadpkl('../features/queries.pkl')
     profiles = loadpkl('../features/profiles.pkl')
     queries_pred = loadpkl('../features/queries_pred.pkl')
-    queries_profiles_pred = loadpkl('../features/queries_profiles_pred.pkl')
-#    plans_pred = loadpkl('../features/plans_pred.pkl')
 
     # merge
     df = pd.merge(df, queries, on=['sid','click_mode'], how='left')
-    df = pd.merge(df, queries_pred, on='sid', how='left')
-    df = pd.merge(df, queries_profiles_pred, on='sid', how='left')
     df = pd.merge(df, profiles, on='pid', how='left')
-#    df = pd.merge(df, plans_pred, on='sid', how='left')
+    df = pd.merge(df, queries_pred, on='sid', how='left')
 
     del queries, profiles, queries_pred
     gc.collect()
 
     # count features
     df['pid_count'] = df['pid'].map(df['pid'].value_counts())
-
-    # isnull feature
-#    df['pid_isnull']=df['pid'].isnull().astype(int)
 
     # time diff
     df['plan_req_time_diff'] = (df['plan_time']-df['req_time']).astype(int)
@@ -48,17 +41,6 @@ def main(num_rows=None):
 
     for i, c in enumerate(cols_plan_distance):
         df['plan_queries_distance_ratio{}'.format(i)] = df[c] / df['queries_distance']
-
-    # target encoding
-    """
-    train_df = df[df['click_mode'].notnull()]
-    target_dummies=pd.get_dummies(train_df.click_mode.astype(int), prefix='target')
-    cols_dummies = target_dummies.columns.to_list()
-    train_df = pd.concat([train_df, target_dummies],axis=1)
-    df_g = train_df[['pid']+cols_dummies].groupby('pid').mean()
-    for i,d in enumerate(cols_dummies):
-        df['pid_target_{}'.format(i)]=df['pid'].map(df_g[d])
-    """
 
     # remove missing variables
     col_missing = removeMissingVariables(df,0.75)
