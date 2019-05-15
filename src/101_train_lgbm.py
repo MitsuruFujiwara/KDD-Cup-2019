@@ -114,7 +114,6 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
                         lgb_train,
                         valid_sets=[lgb_train, lgb_test],
                         valid_names=['train', 'test'],
-#                        feval=eval_f,
                         num_boost_round=10000,
                         early_stopping_rounds= 200,
                         verbose_eval=100
