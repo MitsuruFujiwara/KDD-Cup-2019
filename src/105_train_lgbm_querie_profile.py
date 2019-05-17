@@ -21,7 +21,7 @@ from utils import line_notify, loadpkl, save2pkl
 from utils import NUM_FOLDS, FEATS_EXCLUDED, CAT_COLS
 
 #==============================================================================
-# Traing LightGBM (queries)
+# Traing LightGBM (queries & profiles)
 #==============================================================================
 
 warnings.filterwarnings('ignore')
@@ -81,7 +81,7 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
 
         # params
         params ={
-                'device' : 'gpu',
+#                'device' : 'gpu',
 #                'gpu_use_dp':True,
                 'task': 'train',
                 'boosting': 'gbdt',
