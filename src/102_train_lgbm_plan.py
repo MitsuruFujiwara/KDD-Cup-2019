@@ -72,22 +72,22 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
         # set data structure
         lgb_train = lgb.Dataset(train_x,
                                 label=train_y,
-#                                categorical_feature=CAT_COLS,
+                                categorical_feature=CAT_COLS,
                                 free_raw_data=False)
         lgb_test = lgb.Dataset(valid_x,
                                label=valid_y,
-#                               categorical_feature=CAT_COLS,
+                               categorical_feature=CAT_COLS,
                                free_raw_data=False)
 
         # params
         params ={
-                'device' : 'gpu',
+#                'device' : 'gpu',
 #                'gpu_use_dp':True,
                 'task': 'train',
                 'boosting': 'gbdt',
                 'objective': 'multiclass',
                 'metric': 'multiclass',
-                'learning_rate': 0.01,
+                'learning_rate': 0.05,
                 'num_leaves': 31,
                 'lambda_l1': 0.01,
                 'lambda_l2': 10,
@@ -166,8 +166,9 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
 
 def main(debug=False):
     with timer("Load Datasets"):
-        # load pkl
-        df = loadpkl('../features/plans.pkl')
+        # load feathers
+        files = sorted(glob('../features/*.feather'))
+        df = pd.concat([pd.read_feather(f) for f in tqdm(files, mininterval=60)], axis=1)
 
         # use selected features
         df = df[configs['features']]
