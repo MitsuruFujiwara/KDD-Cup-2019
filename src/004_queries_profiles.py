@@ -12,7 +12,7 @@ from utils import loadpkl, to_feature, to_json, save2pkl
 warnings.filterwarnings('ignore')
 
 #==============================================================================
-# Preprocessing queries & profiles
+# Preprocessing Queries & Profiles
 #==============================================================================
 
 def main(num_rows=None):

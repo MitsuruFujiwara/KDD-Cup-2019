@@ -11,7 +11,7 @@ from utils import save2pkl, loadpkl
 warnings.filterwarnings('ignore')
 
 #==============================================================================
-# Preprocessing Queries
+# Preprocessing Profiles
 #==============================================================================
 
 def main(num_rows=None):
