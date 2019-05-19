@@ -82,12 +82,12 @@ def main(num_rows=None):
         df['pred_skew{}'.format(i)] = df[cols].skew(axis=1)
 
     # remove missing variables
-#    col_missing = removeMissingVariables(df,0.75)
-#    df.drop(col_missing, axis=1, inplace=True)
+    col_missing = removeMissingVariables(df,0.75)
+    df.drop(col_missing, axis=1, inplace=True)
 
     # remove correlated variables
-#    col_drop = removeCorrelatedVariables(df,0.95)
-#    df.drop(col_drop, axis=1, inplace=True)
+    col_drop = removeCorrelatedVariables(df,0.95)
+    df.drop(col_drop, axis=1, inplace=True)
 
     # save as feather
     to_feature(df, '../features')
