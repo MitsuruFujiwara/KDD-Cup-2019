@@ -79,11 +79,13 @@ def kfold_xgboost(train_df,test_df,num_folds,stratified=False,debug=False):
 
         # params
         params = {
-                'objective':'gpu:reg:linear', # GPU parameter
+                'device':'gpu',
+                'objective':'multi:softmax', # GPU parameter
                 'booster': 'gbtree',
-                'eval_metric':'rmse',
+                'eval_metric':'mlogloss',
+                'num_class':12,
                 'silent':1,
-                'eta': 0.01,
+                'eta': 0.05,
                 'colsample_bytree': 0.602456630857159,
                 'colsample_bylevel': 0.674672876140377,
                 'subsample': 0.908588081216417,
@@ -110,8 +112,8 @@ def kfold_xgboost(train_df,test_df,num_folds,stratified=False,debug=False):
         # save model
         clf.save_model('../output/xgb_'+str(n_fold)+'.txt')
 
-        oof_preds[valid_idx] = clf.predict(valid_x)
-        sub_preds += clf.predict(test_df_dmtrx) / folds.n_splits
+        oof_preds[valid_idx] = clf.predict(xgb_test, output_margin=True)
+        sub_preds += clf.predict(test_df_dmtrx, output_margin=True) / folds.n_splits
 
         # save feature importances
         fold_importance_df = pd.DataFrame.from_dict(clf.get_score(importance_type='gain'), orient='index', columns=['importance'])
@@ -120,7 +122,7 @@ def kfold_xgboost(train_df,test_df,num_folds,stratified=False,debug=False):
         feature_importance_df = pd.concat([feature_importance_df, fold_importance_df], axis=0)
 
         print('Fold %2d F1 Score : %.6f' % (n_fold + 1, f1_score(valid_y,np.argmax(oof_preds[valid_idx],axis=1),average='weighted')))
-        del clf, train_x, train_y, valid_x, valid_y
+        del clf, train_x, train_y, valid_x, valid_y, xgb_train, xgb_test
         gc.collect()
 
     # Full F1 Score & LINE Notify

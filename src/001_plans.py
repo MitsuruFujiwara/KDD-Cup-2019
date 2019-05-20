@@ -135,20 +135,42 @@ def main(num_rows=None):
         plans_df['plan_{}_price_eta_ratio'.format(i)] = plans_df['plan_{}_price'.format(i)] / plans_df['plan_{}_eta'.format(i)]
         plans_df['plan_{}_distance_eta_ratio'.format(i)] = plans_df['plan_{}_distance'.format(i)] / plans_df['plan_{}_eta'.format(i)]
 
+    # prod features
+    for i in range(0,7):
+        plans_df['plan_{}_price_distance_prod'.format(i)] = plans_df['plan_{}_price'.format(i)] * plans_df['plan_{}_distance'.format(i)]
+        plans_df['plan_{}_price_eta_prod'.format(i)] = plans_df['plan_{}_price'.format(i)] * plans_df['plan_{}_eta'.format(i)]
+        plans_df['plan_{}_distance_eta_prod'.format(i)] = plans_df['plan_{}_distance'.format(i)] * plans_df['plan_{}_eta'.format(i)]
+        plans_df['plan_{}_price_distance_eta_prod'.format(i)] = plans_df['plan_{}_price'.format(i)] * plans_df['plan_{}_distance'.format(i)]* plans_df['plan_{}_eta'.format(i)]
+
     # ratio features with plan 0
     for i in range(1,7):
         plans_df['plan_{}_distance_ratio_0'.format(i)] = plans_df['plan_{}_distance'.format(i)]/plans_df['plan_0_distance']
         plans_df['plan_{}_price_ratio_0'.format(i)] = plans_df['plan_{}_price'.format(i)]/plans_df['plan_0_price']
         plans_df['plan_{}_eta_ratio_0'.format(i)] = plans_df['plan_{}_eta'.format(i)]/plans_df['plan_0_eta']
 
+        plans_df['plan_{}_price_distance_prod_ratio_0'.format(i)] = plans_df['plan_{}_price_distance_prod'.format(i)] / plans_df['plan_0_price_distance_prod']
+        plans_df['plan_{}_price_eta_prod_ratio_0'.format(i)] = plans_df['plan_{}_price_eta_prod'.format(i)] / plans_df['plan_0_price_eta_prod']
+        plans_df['plan_{}_distance_eta_prod_ratio_0'.format(i)] = plans_df['plan_{}_distance_eta_prod'.format(i)] / plans_df['plan_0_distance_eta_prod']
+        plans_df['plan_{}_price_distance_eta_prod_ratio_0'.format(i)] = plans_df['plan_{}_price_distance_eta_prod'.format(i)] / plans_df['plan_0_price_distance_eta_prod']
+
     # stats features of ratio
     cols_price_distance_ratio = ['plan_{}_price_distance_ratio'.format(i) for i in range(0,7)]
     cols_price_eta_ratio = ['plan_{}_price_eta_ratio'.format(i) for i in range(0,7)]
     cols_distance_eta_ratio = ['plan_{}_distance_eta_ratio'.format(i) for i in range(0,7)]
 
+    cols_price_distance_prod = ['plan_{}_price_distance_prod'.format(i) for i in range(0,7)]
+    cols_price_eta_prod = ['plan_{}_price_eta_prod'.format(i) for i in range(0,7)]
+    cols_distance_eta_prod = ['plan_{}_distance_eta_prod'.format(i) for i in range(0,7)]
+    cols_price_distance_eta_prod = ['plan_{}_price_distance_eta_prod'.format(i) for i in range(0,7)]
+
     cols_distance_ratio_0 = ['plan_{}_distance_ratio_0'.format(i) for i in range(1,7)]
     cols_price_ratio_0 = ['plan_{}_price_ratio_0'.format(i) for i in range(1,7)]
     cols_eta_ratio_0 = ['plan_{}_eta_ratio_0'.format(i) for i in range(1,7)]
+
+    cols_price_distance_prod_ratio_0 = ['plan_{}_price_distance_prod_ratio_0'.format(i) for i in range(1,7)]
+    cols_price_eta_prod_ratio_0 = ['plan_{}_price_eta_prod_ratio_0'.format(i) for i in range(1,7)]
+    cols_distance_eta_prod_ratio_0 = ['plan_{}_distance_eta_prod_ratio_0'.format(i) for i in range(1,7)]
+    cols_price_distance_eta_prod_ratio_0 = ['plan_{}_price_distance_eta_prod_ratio_0'.format(i) for i in range(1,7)]
 
     plans_df['plan_price_distance_ratio_mean'] = plans_df[cols_price_distance_ratio].mean(axis=1)
     plans_df['plan_price_distance_ratio_sum'] = plans_df[cols_price_distance_ratio].sum(axis=1)
@@ -171,6 +193,34 @@ def main(num_rows=None):
     plans_df['plan_distance_eta_ratio_var'] = plans_df[cols_distance_eta_ratio].var(axis=1)
     plans_df['plan_distance_eta_ratio_skew'] = plans_df[cols_distance_eta_ratio].skew(axis=1)
 
+    plans_df['plan_price_distance_prod_mean'] = plans_df[cols_price_distance_prod].mean(axis=1)
+    plans_df['plan_price_distance_prod_sum'] = plans_df[cols_price_distance_prod].sum(axis=1)
+    plans_df['plan_price_distance_prod_max'] = plans_df[cols_price_distance_prod].max(axis=1)
+    plans_df['plan_price_distance_prod_min'] = plans_df[cols_price_distance_prod].min(axis=1)
+    plans_df['plan_price_distance_prod_var'] = plans_df[cols_price_distance_prod].var(axis=1)
+    plans_df['plan_price_distance_prod_skew'] = plans_df[cols_price_distance_prod].skew(axis=1)
+
+    plans_df['plan_price_eta_prod_mean'] = plans_df[cols_price_eta_prod].mean(axis=1)
+    plans_df['plan_price_eta_prod_sum'] = plans_df[cols_price_eta_prod].sum(axis=1)
+    plans_df['plan_price_eta_prod_max'] = plans_df[cols_price_eta_prod].max(axis=1)
+    plans_df['plan_price_eta_prod_min'] = plans_df[cols_price_eta_prod].min(axis=1)
+    plans_df['plan_price_eta_prod_var'] = plans_df[cols_price_eta_prod].var(axis=1)
+    plans_df['plan_price_eta_prod_skew'] = plans_df[cols_price_eta_prod].skew(axis=1)
+
+    plans_df['plan_distance_eta_prod_mean'] = plans_df[cols_distance_eta_prod].mean(axis=1)
+    plans_df['plan_distance_eta_prod_sum'] = plans_df[cols_distance_eta_prod].sum(axis=1)
+    plans_df['plan_distance_eta_prod_max'] = plans_df[cols_distance_eta_prod].max(axis=1)
+    plans_df['plan_distance_eta_prod_min'] = plans_df[cols_distance_eta_prod].min(axis=1)
+    plans_df['plan_distance_eta_prod_var'] = plans_df[cols_distance_eta_prod].var(axis=1)
+    plans_df['plan_distance_eta_prod_skew'] = plans_df[cols_distance_eta_prod].skew(axis=1)
+
+    plans_df['plan_price_distance_eta_prod_mean'] = plans_df[cols_price_distance_eta_prod].mean(axis=1)
+    plans_df['plan_price_distance_eta_prod_sum'] = plans_df[cols_price_distance_eta_prod].sum(axis=1)
+    plans_df['plan_price_distance_eta_prod_max'] = plans_df[cols_price_distance_eta_prod].max(axis=1)
+    plans_df['plan_price_distance_eta_prod_min'] = plans_df[cols_price_distance_eta_prod].min(axis=1)
+    plans_df['plan_price_distance_eta_prod_var'] = plans_df[cols_price_distance_eta_prod].var(axis=1)
+    plans_df['plan_price_distance_eta_prod_skew'] = plans_df[cols_price_distance_eta_prod].skew(axis=1)
+
     plans_df['plan_distance_ratio_0_mean'] = plans_df[cols_distance_ratio_0].mean(axis=1)
     plans_df['plan_distance_ratio_0_sum'] = plans_df[cols_distance_ratio_0].sum(axis=1)
     plans_df['plan_distance_ratio_0_max'] = plans_df[cols_distance_ratio_0].max(axis=1)
@@ -192,6 +242,34 @@ def main(num_rows=None):
     plans_df['plan_eta_ratio_0_var'] = plans_df[cols_eta_ratio_0].var(axis=1)
     plans_df['plan_eta_ratio_0_skew'] = plans_df[cols_eta_ratio_0].skew(axis=1)
 
+    plans_df['plan_price_distance_prod_ratio_0_mean'] = plans_df[cols_price_distance_prod_ratio_0].mean(axis=1)
+    plans_df['plan_price_distance_prod_ratio_0_sum'] = plans_df[cols_price_distance_prod_ratio_0].sum(axis=1)
+    plans_df['plan_price_distance_prod_ratio_0_max'] = plans_df[cols_price_distance_prod_ratio_0].max(axis=1)
+    plans_df['plan_price_distance_prod_ratio_0_min'] = plans_df[cols_price_distance_prod_ratio_0].min(axis=1)
+    plans_df['plan_price_distance_prod_ratio_0_var'] = plans_df[cols_price_distance_prod_ratio_0].var(axis=1)
+    plans_df['plan_price_distance_prod_ratio_0_skew'] = plans_df[cols_price_distance_prod_ratio_0].skew(axis=1)
+
+    plans_df['plan_price_eta_prod_ratio_0_mean'] = plans_df[cols_price_eta_prod_ratio_0].mean(axis=1)
+    plans_df['plan_price_eta_prod_ratio_0_sum'] = plans_df[cols_price_eta_prod_ratio_0].sum(axis=1)
+    plans_df['plan_price_eta_prod_ratio_0_max'] = plans_df[cols_price_eta_prod_ratio_0].max(axis=1)
+    plans_df['plan_price_eta_prod_ratio_0_min'] = plans_df[cols_price_eta_prod_ratio_0].min(axis=1)
+    plans_df['plan_price_eta_prod_ratio_0_var'] = plans_df[cols_price_eta_prod_ratio_0].var(axis=1)
+    plans_df['plan_price_eta_prod_ratio_0_skew'] = plans_df[cols_price_eta_prod_ratio_0].skew(axis=1)
+
+    plans_df['plan_distance_eta_prod_ratio_0_mean'] = plans_df[cols_distance_eta_prod_ratio_0].mean(axis=1)
+    plans_df['plan_distance_eta_prod_ratio_0_sum'] = plans_df[cols_distance_eta_prod_ratio_0].sum(axis=1)
+    plans_df['plan_distance_eta_prod_ratio_0_max'] = plans_df[cols_distance_eta_prod_ratio_0].max(axis=1)
+    plans_df['plan_distance_eta_prod_ratio_0_min'] = plans_df[cols_distance_eta_prod_ratio_0].min(axis=1)
+    plans_df['plan_distance_eta_prod_ratio_0_var'] = plans_df[cols_distance_eta_prod_ratio_0].var(axis=1)
+    plans_df['plan_distance_eta_prod_ratio_0_skew'] = plans_df[cols_distance_eta_prod_ratio_0].skew(axis=1)
+
+    plans_df['plan_price_distance_eta_prod_ratio_0_mean'] = plans_df[cols_price_distance_eta_prod_ratio_0].mean(axis=1)
+    plans_df['plan_price_distance_eta_prod_ratio_0_sum'] = plans_df[cols_price_distance_eta_prod_ratio_0].sum(axis=1)
+    plans_df['plan_price_distance_eta_prod_ratio_0_max'] = plans_df[cols_price_distance_eta_prod_ratio_0].max(axis=1)
+    plans_df['plan_price_distance_eta_prod_ratio_0_min'] = plans_df[cols_price_distance_eta_prod_ratio_0].min(axis=1)
+    plans_df['plan_price_distance_eta_prod_ratio_0_var'] = plans_df[cols_price_distance_eta_prod_ratio_0].var(axis=1)
+    plans_df['plan_price_distance_eta_prod_ratio_0_skew'] = plans_df[cols_price_distance_eta_prod_ratio_0].skew(axis=1)
+
     # min-max plan (categorical) for ratio features
     plans_df['plan_price_distance_ratio_max_plan'] = plans_df[cols_price_distance_ratio].idxmax(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
     plans_df['plan_price_eta_ratio_max_plan'] = plans_df[cols_price_eta_ratio].idxmax(axis=1).apply(lambda x: x[:6]+'_transport_mode')
@@ -200,6 +278,15 @@ def main(num_rows=None):
     plans_df['plan_distance_eta_ratio_max_plan'] = plans_df[cols_distance_eta_ratio].idxmax(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
     plans_df['plan_distance_eta_ratio_min_plan'] = plans_df[cols_distance_eta_ratio].idxmin(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
 
+    plans_df['plan_price_distance_prod_max_plan'] = plans_df[cols_price_distance_prod].idxmax(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
+    plans_df['plan_price_eta_prod_max_plan'] = plans_df[cols_price_eta_prod].idxmax(axis=1).apply(lambda x: x[:6]+'_transport_mode')
+    plans_df['plan_price_distance_prod_min_plan'] = plans_df[cols_price_distance_prod].idxmin(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
+    plans_df['plan_price_eta_prod_min_plan'] = plans_df[cols_price_eta_prod].idxmin(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
+    plans_df['plan_distance_eta_prod_max_plan'] = plans_df[cols_distance_eta_prod].idxmax(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
+    plans_df['plan_distance_eta_prod_min_plan'] = plans_df[cols_distance_eta_prod].idxmin(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
+    plans_df['plan_price_distance_eta_prod_max_plan'] = plans_df[cols_distance_eta_prod].idxmax(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
+    plans_df['plan_price_distance_eta_prod_min_plan'] = plans_df[cols_distance_eta_prod].idxmin(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
+
     plans_df['plan_distance_ratio_0_max_plan'] = plans_df[cols_distance_ratio_0].idxmax(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
     plans_df['plan_distance_ratio_0_min_plan'] = plans_df[cols_distance_ratio_0].idxmin(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
     plans_df['plan_price_ratio_0_max_plan'] = plans_df[cols_price_ratio_0].idxmax(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
@@ -207,17 +294,35 @@ def main(num_rows=None):
     plans_df['plan_eta_ratio_0_max_plan'] = plans_df[cols_eta_ratio_0].idxmax(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
     plans_df['plan_eta_ratio_0_min_plan'] = plans_df[cols_eta_ratio_0].idxmin(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
 
+    plans_df['plan_price_distance_prod_ratio_0_max_plan'] = plans_df[cols_price_distance_prod_ratio_0].idxmax(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
+    plans_df['plan_price_distance_prod_ratio_0_min_plan'] = plans_df[cols_price_distance_prod_ratio_0].idxmin(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
+    plans_df['plan_price_eta_prod_ratio_0_max_plan'] = plans_df[cols_price_eta_prod_ratio_0].idxmax(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
+    plans_df['plan_price_eta_prod_ratio_0_min_plan'] = plans_df[cols_price_eta_prod_ratio_0].idxmin(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
+    plans_df['plan_distance_eta_prod_ratio_0_max_plan'] = plans_df[cols_distance_eta_prod_ratio_0].idxmax(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
+    plans_df['plan_distance_eta_prod_ratio_0_min_plan'] = plans_df[cols_distance_eta_prod_ratio_0].idxmin(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
+    plans_df['plan_price_distance_eta_prod_ratio_0_max_plan'] = plans_df[cols_price_distance_eta_prod_ratio_0].idxmax(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
+    plans_df['plan_price_distance_eta_prod_ratio_0_min_plan'] = plans_df[cols_price_distance_eta_prod_ratio_0].idxmin(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
+
     # map plans
     cols_ratio_plan = ['plan_price_distance_ratio_max_plan','plan_price_distance_ratio_min_plan',
                        'plan_price_eta_ratio_max_plan','plan_price_eta_ratio_min_plan',
                        'plan_distance_eta_ratio_max_plan', 'plan_distance_eta_ratio_min_plan',
+                       'plan_price_distance_prod_max_plan', 'plan_price_eta_prod_max_plan',
+                       'plan_price_distance_prod_min_plan', 'plan_price_eta_prod_min_plan',
+                       'plan_distance_eta_prod_max_plan', 'plan_distance_eta_prod_min_plan',
+                       'plan_price_distance_eta_prod_max_plan', 'plan_price_distance_eta_prod_min_plan',
                        'plan_distance_ratio_0_max_plan', 'plan_distance_ratio_0_min_plan',
                        'plan_price_ratio_0_max_plan', 'plan_price_ratio_0_min_plan',
-                       'plan_eta_ratio_0_max_plan', 'plan_eta_ratio_0_min_plan']
+                       'plan_eta_ratio_0_max_plan', 'plan_eta_ratio_0_min_plan',
+                       'plan_price_distance_prod_ratio_0_max_plan','plan_price_distance_prod_ratio_0_min_plan',
+                       'plan_price_eta_prod_ratio_0_max_plan','plan_price_eta_prod_ratio_0_min_plan',
+                       'plan_distance_eta_prod_ratio_0_max_plan', 'plan_distance_eta_prod_ratio_0_min_plan',
+                       'plan_price_distance_eta_prod_ratio_0_max_plan','plan_price_distance_eta_prod_ratio_0_min_plan']
+
     for p in tqdm(cols_ratio_plan):
         for c in cols_transport_mode:
             plans_df[p][plans_df[p]==c] = plans_df[c][plans_df[p]==c]
-        
+
     # count features
     plans_df['plan_price_distance_ratio_max_plan_count'] = plans_df['plan_price_distance_ratio_max_plan'].map(plans_df['plan_price_distance_ratio_max_plan'].value_counts())
     plans_df['plan_price_distance_ratio_min_plan_count'] = plans_df['plan_price_distance_ratio_min_plan'].map(plans_df['plan_price_distance_ratio_min_plan'].value_counts())
@@ -226,12 +331,30 @@ def main(num_rows=None):
     plans_df['plan_distance_eta_ratio_max_plan_count'] = plans_df['plan_distance_eta_ratio_max_plan'].map(plans_df['plan_distance_eta_ratio_max_plan'].value_counts())
     plans_df['plan_distance_eta_ratio_min_plan_count'] = plans_df['plan_distance_eta_ratio_min_plan'].map(plans_df['plan_distance_eta_ratio_min_plan'].value_counts())
 
+    plans_df['plan_price_distance_prod_max_plan_count'] = plans_df['plan_price_distance_prod_max_plan'].map(plans_df['plan_price_distance_prod_max_plan'].value_counts())
+    plans_df['plan_price_distance_prod_min_plan_count'] = plans_df['plan_price_distance_prod_min_plan'].map(plans_df['plan_price_distance_prod_min_plan'].value_counts())
+    plans_df['plan_price_eta_prod_max_plan_count'] = plans_df['plan_price_eta_prod_max_plan'].map(plans_df['plan_price_eta_prod_max_plan'].value_counts())
+    plans_df['plan_price_eta_prod_min_plan_count'] = plans_df['plan_price_eta_prod_min_plan'].map(plans_df['plan_price_eta_prod_min_plan'].value_counts())
+    plans_df['plan_distance_eta_prod_max_plan_count'] = plans_df['plan_distance_eta_prod_max_plan'].map(plans_df['plan_distance_eta_prod_max_plan'].value_counts())
+    plans_df['plan_distance_eta_prod_min_plan_count'] = plans_df['plan_distance_eta_prod_min_plan'].map(plans_df['plan_distance_eta_prod_min_plan'].value_counts())
+    plans_df['plan_price_distance_eta_prod_max_plan_count'] = plans_df['plan_price_distance_eta_prod_max_plan'].map(plans_df['plan_price_distance_eta_prod_max_plan'].value_counts())
+    plans_df['plan_price_distance_eta_prod_min_plan_count'] = plans_df['plan_price_distance_eta_prod_min_plan'].map(plans_df['plan_price_distance_eta_prod_min_plan'].value_counts())
+
     plans_df['plan_distance_ratio_0_max_plan_count'] = plans_df['plan_distance_ratio_0_max_plan'].map(plans_df['plan_distance_ratio_0_max_plan'].value_counts())
     plans_df['plan_distance_ratio_0_min_plan_count'] = plans_df['plan_distance_ratio_0_min_plan'].map(plans_df['plan_distance_ratio_0_min_plan'].value_counts())
     plans_df['plan_price_ratio_0_max_plan_count'] = plans_df['plan_price_ratio_0_max_plan'].map(plans_df['plan_price_ratio_0_max_plan'].value_counts())
     plans_df['plan_price_ratio_0_min_plan_count'] = plans_df['plan_price_ratio_0_min_plan'].map(plans_df['plan_price_ratio_0_min_plan'].value_counts())
     plans_df['plan_eta_ratio_0_max_plan_count'] = plans_df['plan_eta_ratio_0_max_plan'].map(plans_df['plan_eta_ratio_0_max_plan'].value_counts())
     plans_df['plan_eta_ratio_0_min_plan_count'] = plans_df['plan_eta_ratio_0_min_plan'].map(plans_df['plan_eta_ratio_0_min_plan'].value_counts())
+
+    plans_df['plan_price_distance_prod_ratio_0_max_plan_count'] = plans_df['plan_price_distance_prod_ratio_0_max_plan'].map(plans_df['plan_price_distance_prod_ratio_0_max_plan'].value_counts())
+    plans_df['plan_price_distance_prod_ratio_0_min_plan_count'] = plans_df['plan_price_distance_prod_ratio_0_min_plan'].map(plans_df['plan_price_distance_prod_ratio_0_min_plan'].value_counts())
+    plans_df['plan_price_eta_prod_ratio_0_max_plan_count'] = plans_df['plan_price_eta_prod_ratio_0_max_plan'].map(plans_df['plan_price_eta_prod_ratio_0_max_plan'].value_counts())
+    plans_df['plan_price_eta_prod_ratio_0_min_plan_count'] = plans_df['plan_price_eta_prod_ratio_0_min_plan'].map(plans_df['plan_price_eta_prod_ratio_0_min_plan'].value_counts())
+    plans_df['plan_distance_eta_prod_ratio_0_max_plan_count'] = plans_df['plan_distance_eta_prod_ratio_0_max_plan'].map(plans_df['plan_distance_eta_prod_ratio_0_max_plan'].value_counts())
+    plans_df['plan_distance_eta_prod_ratio_0_min_plan_count'] = plans_df['plan_distance_eta_prod_ratio_0_min_plan'].map(plans_df['plan_distance_eta_prod_ratio_0_min_plan'].value_counts())
+    plans_df['plan_price_distance_eta_prod_ratio_0_max_plan_count'] = plans_df['plan_price_distance_eta_prod_ratio_0_max_plan'].map(plans_df['plan_price_distance_eta_prod_ratio_0_max_plan'].value_counts())
+    plans_df['plan_price_distance_eta_prod_ratio_0_min_plan_count'] = plans_df['plan_price_distance_eta_prod_ratio_0_min_plan'].map(plans_df['plan_price_distance_eta_prod_ratio_0_min_plan'].value_counts())
 
     # target encoding
     train_plans = plans_df[plans_df['click_mode'].notnull()]

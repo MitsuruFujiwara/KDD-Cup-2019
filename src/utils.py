@@ -12,7 +12,7 @@ from sklearn.metrics import f1_score
 #==============================================================================
 
 # num folds
-NUM_FOLDS = 5
+NUM_FOLDS = 10
 
 # features excluded
 FEATS_EXCLUDED = ['index', 'sid', 'pid', 'click_mode', 'plan_time', 'req_time']
@@ -26,9 +26,17 @@ CAT_COLS = cat_cols+['plan_weekday', 'plan_hour',
                      'plan_price_distance_ratio_max_plan', 'plan_price_distance_ratio_min_plan',
                      'plan_price_eta_ratio_max_plan', 'plan_price_eta_ratio_min_plan',
                      'plan_distance_eta_ratio_max_plan', 'plan_distance_eta_ratio_min_plan',
+                     'plan_price_distance_prod_max_plan', 'plan_price_eta_prod_max_plan',
+                     'plan_price_distance_prod_min_plan', 'plan_price_eta_prod_min_plan',
+                     'plan_distance_eta_prod_max_plan', 'plan_distance_eta_prod_min_plan',
+                     'plan_price_distance_eta_prod_max_plan', 'plan_price_distance_eta_prod_min_plan',
                      'plan_distance_ratio_0_max_plan','plan_distance_ratio_0_min_plan',
                      'plan_price_ratio_0_max_plan', 'plan_price_ratio_0_min_plan',
-                     'plan_eta_ratio_0_max_plan', 'plan_eta_ratio_0_min_plan']
+                     'plan_eta_ratio_0_max_plan', 'plan_eta_ratio_0_min_plan',
+                     'plan_price_distance_prod_ratio_0_max_plan','plan_price_distance_prod_ratio_0_min_plan',
+                     'plan_price_eta_prod_ratio_0_max_plan','plan_price_eta_prod_ratio_0_min_plan',
+                     'plan_distance_eta_prod_ratio_0_max_plan', 'plan_distance_eta_prod_ratio_0_min_plan',
+                     'plan_price_distance_eta_prod_ratio_0_max_plan','plan_price_distance_eta_prod_ratio_0_min_plan']
 
 # to feather
 def to_feature(df, path):
