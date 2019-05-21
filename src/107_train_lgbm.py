@@ -20,7 +20,7 @@ from utils import line_notify, loadpkl, eval_f
 from utils import NUM_FOLDS, FEATS_EXCLUDED, CAT_COLS
 
 #==============================================================================
-# Traing LightGBM (with querie's sid)
+# Traing LightGBM (with queries sid)
 #==============================================================================
 
 warnings.filterwarnings('ignore')
@@ -86,7 +86,7 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
                 'boosting': 'gbdt',
                 'objective': 'multiclass',
                 'metric': 'multiclass',
-                'learning_rate': 0.01,
+                'learning_rate': 0.05,
                 'num_leaves': 31,
                 'lambda_l1': 0.01,
                 'lambda_l2': 10,
@@ -190,6 +190,6 @@ def main(debug=False):
 if __name__ == "__main__":
     submission_file_name = "../output/submission_lgbm.csv"
     oof_file_name = "../output/oof_lgbm.csv"
-    configs = json.load(open('../configs/101_lgbm.json'))
+    configs = json.load(open('../configs/107_lgbm.json'))
     with timer("Full model run"):
         main(debug=False)

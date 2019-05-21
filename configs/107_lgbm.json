@@ -1,9 +1,7 @@
 {
     "features": [
-        "index",
         "sid",
         "pid",
-        "req_time",
         "click_mode",
         "x_o",
         "y_o",
@@ -36,8 +34,6 @@
         "plan_2_transport_mode",
         "plan_3_transport_mode",
         "plan_4_transport_mode",
-        "plan_time",
-        "plan_weekday_hour",
         "plan_time_diff",
         "plan_weekday_hour_count",
         "plan_distance_var",
