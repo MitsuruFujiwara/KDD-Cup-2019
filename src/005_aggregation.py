@@ -17,19 +17,19 @@ warnings.filterwarnings('ignore')
 
 def main(num_rows=None):
     # load pkls
-    df = loadpkl('../features/plans.pkl')
-    queries = loadpkl('../features/queries.pkl')
+    df = loadpkl('../features/queries.pkl')
+    plans = loadpkl('../features/plans.pkl')
     profiles = loadpkl('../features/profiles.pkl')
-    queries_pred = loadpkl('../features/queries_pred.pkl')
-    queries_profiles_pred = loadpkl('../features/queries_profiles_pred.pkl')
+#    queries_pred = loadpkl('../features/queries_pred.pkl')
+#    queries_profiles_pred = loadpkl('../features/queries_profiles_pred.pkl')
 
     # merge
-    df = pd.merge(df, queries, on=['sid','click_mode'], how='left')
+    df = pd.merge(df, plans, on=['sid','click_mode'], how='left')
     df = pd.merge(df, profiles, on='pid', how='left')
-    df = pd.merge(df, queries_pred, on='sid', how='left')
-    df = pd.merge(df, queries_profiles_pred, on='sid', how='left')
+#    df = pd.merge(df, queries_pred, on='sid', how='left')
+#    df = pd.merge(df, queries_profiles_pred, on='sid', how='left')
 
-    del queries, profiles, queries_pred, queries_profiles_pred
+    del plans, profiles
     gc.collect()
 
     # count features
@@ -44,6 +44,7 @@ def main(num_rows=None):
     for i, c in enumerate(cols_plan_distance):
         df['plan_queries_distance_ratio{}'.format(i)] = df[c] / df['queries_distance']
 
+    """
     # stats features for preds
     cols_pred_queries = ['pred_queries{}'.format(i) for i in range(0,12)]
     cols_pred_queries_profiles = ['pred_queries_profiles{}'.format(i) for i in range(0,12)]
@@ -70,6 +71,7 @@ def main(num_rows=None):
         df['pred_min{}'.format(i)] = df[cols].min(axis=1)
         df['pred_var{}'.format(i)] = df[cols].var(axis=1)
         df['pred_skew{}'.format(i)] = df[cols].skew(axis=1)
+    """
 
     # remove missing variables
     col_missing = removeMissingVariables(df,0.75)
