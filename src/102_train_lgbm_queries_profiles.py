@@ -21,7 +21,7 @@ from utils import line_notify, loadpkl, save2pkl
 from utils import NUM_FOLDS, FEATS_EXCLUDED, CAT_COLS
 
 #==============================================================================
-# Traing LightGBM (queries)
+# Traing LightGBM (queries & profiles)
 #==============================================================================
 
 warnings.filterwarnings('ignore')
@@ -87,7 +87,7 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
                 'boosting': 'gbdt',
                 'objective': 'multiclass',
                 'metric': 'multiclass',
-                'learning_rate': 0.05,
+                'learning_rate': 0.01,
                 'num_class': 12,
                 'colsample_bytree': 0.723387165617351,
                 'max_depth': 8,
@@ -103,13 +103,11 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
                 'bagging_seed':int(2**n_fold),
                 'drop_seed':int(2**n_fold)
                 }
-
         clf = lgb.train(
                         params,
                         lgb_train,
                         valid_sets=[lgb_train, lgb_test],
                         valid_names=['train', 'test'],
-#                        feval=eval_f,
                         num_boost_round=10000,
                         early_stopping_rounds= 200,
                         verbose_eval=100
@@ -136,32 +134,32 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
 
     # display importances
     display_importances(feature_importance_df,
-                        '../imp/lgbm_importances_queries.png',
-                        '../imp/feature_importance_lgbm_queries.csv')
+                        '../imp/lgbm_importances_queries_profiles.png',
+                        '../imp/feature_importance_lgbm_queries_profiles.csv')
 
     if not debug:
         # save prediction for submit
         sub_preds = pd.DataFrame(sub_preds)
-        sub_preds.columns = ['pred_queries{}'.format(c) for c in sub_preds.columns]
+        sub_preds.columns = ['pred_queries_profiles{}'.format(c) for c in sub_preds.columns]
         sub_preds['sid'] = test_df.index
 
         # save out of fold prediction
         oof_preds = pd.DataFrame(oof_preds)
-        oof_preds.columns = ['pred_queries{}'.format(c) for c in oof_preds.columns]
+        oof_preds.columns = ['pred_queries_profiles{}'.format(c) for c in oof_preds.columns]
         oof_preds['sid'] = train_df.index
 
         # merge
         df = oof_preds.append(sub_preds)
 
         # save as pkl
-        save2pkl('../features/queries_pred.pkl', df)
+        save2pkl('../features/queries_profiles_pred.pkl', df)
 
         line_notify('{} finished.'.format(sys.argv[0]))
 
 def main(debug=False):
     with timer("Load Datasets"):
         # load pkl
-        df = loadpkl('../features/queries.pkl')
+        df = loadpkl('../features/queries_profiles.pkl')
 
         # use selected features
         df = df[configs['features']]
@@ -182,6 +180,6 @@ def main(debug=False):
         kfold_lightgbm(train_df, test_df, num_folds=NUM_FOLDS, stratified=True, debug=debug)
 
 if __name__ == "__main__":
-    configs = json.load(open('../configs/103_lgbm.json'))
+    configs = json.load(open('../configs/102_lgbm_queries_profiles.json'))
     with timer("Full model run"):
         main(debug=False)

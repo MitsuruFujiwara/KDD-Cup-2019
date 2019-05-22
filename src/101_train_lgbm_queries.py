@@ -21,7 +21,7 @@ from utils import line_notify, loadpkl, save2pkl
 from utils import NUM_FOLDS, FEATS_EXCLUDED, CAT_COLS
 
 #==============================================================================
-# Traing LightGBM (queries & plans)
+# Traing LightGBM (queries)
 #==============================================================================
 
 warnings.filterwarnings('ignore')
@@ -72,22 +72,22 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
         # set data structure
         lgb_train = lgb.Dataset(train_x,
                                 label=train_y,
-                                categorical_feature=CAT_COLS,
+                                categorical_feature=['queries_weekday','queries_hour'],
                                 free_raw_data=False)
         lgb_test = lgb.Dataset(valid_x,
                                label=valid_y,
-                               categorical_feature=CAT_COLS,
+                               categorical_feature=['queries_weekday','queries_hour'],
                                free_raw_data=False)
 
         # params
         params ={
-                'device' : 'gpu',
+#                'device' : 'gpu',
 #                'gpu_use_dp':True,
                 'task': 'train',
                 'boosting': 'gbdt',
                 'objective': 'multiclass',
                 'metric': 'multiclass',
-                'learning_rate': 0.05,
+                'learning_rate': 0.01,
                 'num_class': 12,
                 'colsample_bytree': 0.723387165617351,
                 'max_depth': 8,
@@ -109,13 +109,14 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
                         lgb_train,
                         valid_sets=[lgb_train, lgb_test],
                         valid_names=['train', 'test'],
+#                        feval=eval_f,
                         num_boost_round=10000,
                         early_stopping_rounds= 200,
                         verbose_eval=100
                         )
 
         # save model
-        clf.save_model('../output/lgbm_queries_plans_{}.txt'.format(n_fold))
+        clf.save_model('../output/lgbm_queries_{}.txt'.format(n_fold))
 
         oof_preds[valid_idx] = clf.predict(valid_x, num_iteration=clf.best_iteration)
         sub_preds += clf.predict(test_df[feats], num_iteration=clf.best_iteration) / folds.n_splits
@@ -135,38 +136,35 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
 
     # display importances
     display_importances(feature_importance_df,
-                        '../imp/lgbm_importances_queries_plans.png',
-                        '../imp/feature_importance_lgbm_queries_plans.csv')
+                        '../imp/lgbm_importances_queries.png',
+                        '../imp/feature_importance_lgbm_queries.csv')
 
     if not debug:
         # save prediction for submit
         sub_preds = pd.DataFrame(sub_preds)
-        sub_preds.columns = ['pred_queries_plans{}'.format(c) for c in sub_preds.columns]
+        sub_preds.columns = ['pred_queries{}'.format(c) for c in sub_preds.columns]
         sub_preds['sid'] = test_df.index
 
         # save out of fold prediction
         oof_preds = pd.DataFrame(oof_preds)
-        oof_preds.columns = ['pred_queries_plans{}'.format(c) for c in oof_preds.columns]
+        oof_preds.columns = ['pred_queries{}'.format(c) for c in oof_preds.columns]
         oof_preds['sid'] = train_df.index
 
         # merge
         df = oof_preds.append(sub_preds)
 
         # save as pkl
-        save2pkl('../features/queries_plans_pred.pkl', df)
+        save2pkl('../features/queries_pred.pkl', df)
 
         line_notify('{} finished.'.format(sys.argv[0]))
 
 def main(debug=False):
     with timer("Load Datasets"):
         # load pkl
-        df = loadpkl('../features/queries_plans.pkl')
+        df = loadpkl('../features/queries.pkl')
 
         # use selected features
         df = df[configs['features']]
-
-        # change categorical dtypes as float
-        df[CAT_COLS] = df[CAT_COLS].astype(float)
 
         # set card_id as index
         df.set_index('sid', inplace=True)
@@ -184,6 +182,6 @@ def main(debug=False):
         kfold_lightgbm(train_df, test_df, num_folds=NUM_FOLDS, stratified=True, debug=debug)
 
 if __name__ == "__main__":
-    configs = json.load(open('../configs/107_lgbm.json'))
+    configs = json.load(open('../configs/101_lgbm_queries.json'))
     with timer("Full model run"):
         main(debug=False)

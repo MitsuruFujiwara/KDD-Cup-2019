@@ -1,7 +1,6 @@
 
 import gc
 import json
-import lightgbm as lgb
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -9,6 +8,7 @@ import pandas as pd
 import seaborn as sns
 import time
 import warnings
+import xgboost as xgb
 
 from contextlib import contextmanager
 from glob import glob
@@ -20,7 +20,7 @@ from utils import line_notify, loadpkl, eval_f
 from utils import NUM_FOLDS, FEATS_EXCLUDED, CAT_COLS
 
 #==============================================================================
-# Traing LightGBM (baseline)
+# Traing XGBoost (baseline)
 #==============================================================================
 
 warnings.filterwarnings('ignore')
@@ -42,14 +42,14 @@ def display_importances(feature_importance_df_, outputpath, csv_outputpath):
 
     plt.figure(figsize=(8, 10))
     sns.barplot(x="importance", y="feature", data=best_features.sort_values(by="importance", ascending=False))
-    plt.title('LightGBM Features (avg over folds)')
+    plt.title('XGBoost Features (avg over folds)')
     plt.tight_layout()
     plt.savefig(outputpath)
 
-# LightGBM GBDT with KFold or Stratified KFold
-def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
+# XGBoost with KFold or Stratified KFold
+def kfold_xgboost(train_df,test_df,num_folds,stratified=False,debug=False):
 
-    print("Starting LightGBM. Train shape: {}, test shape: {}".format(train_df.shape, test_df.shape))
+    print("Starting XGBoost. Train shape: {}, test shape: {}".format(train_df.shape, test_df.shape))
 
     # Cross validation model
     if stratified:
@@ -63,67 +63,66 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
     feature_importance_df = pd.DataFrame()
     feats = [f for f in train_df.columns if f not in FEATS_EXCLUDED]
 
+    # dmatrix for test_df
+    test_df_dmtrx = xgb.DMatrix(test_df[feats])
+
     # k-fold
     for n_fold, (train_idx, valid_idx) in enumerate(folds.split(train_df[feats], train_df['click_mode'])):
         train_x, train_y = train_df[feats].iloc[train_idx], train_df['click_mode'].iloc[train_idx]
         valid_x, valid_y = train_df[feats].iloc[valid_idx], train_df['click_mode'].iloc[valid_idx]
 
         # set data structure
-        lgb_train = lgb.Dataset(train_x,
-                                label=train_y,
-                                categorical_feature=CAT_COLS,
-                                free_raw_data=False)
-        lgb_test = lgb.Dataset(valid_x,
-                               label=valid_y,
-                               categorical_feature=CAT_COLS,
-                               free_raw_data=False)
+        xgb_train = xgb.DMatrix(train_x,
+                                label=train_y)
+        xgb_test = xgb.DMatrix(valid_x,
+                               label=valid_y)
 
         # params
-        params ={
-                'device' : 'gpu',
-#                'gpu_use_dp':True,
-                'task': 'train',
-                'boosting': 'gbdt',
-                'objective': 'multiclass',
-                'metric': 'multiclass',
-                'learning_rate': 0.05,
-                'num_leaves': 31,
-                'lambda_l1': 0.01,
-                'lambda_l2': 10,
-                'num_class': 12,
-                'feature_fraction': 0.8,
-                'bagging_fraction': 0.8,
-                'bagging_freq': 4,
-                'verbose': -1,
-                'seed':int(2**n_fold),
-                'bagging_seed':int(2**n_fold),
-                'drop_seed':int(2**n_fold)
+        params = {
+                'device':'gpu',
+                'objective':'multi:softmax', # GPU parameter
+                'booster': 'gbtree',
+                'eval_metric':'mlogloss',
+                'num_class':12,
+                'silent':1,
+                'eta': 0.01,
+                'colsample_bytree': 0.602456630857159,
+                'colsample_bylevel': 0.674672876140377,
+                'subsample': 0.908588081216417,
+                'max_depth': 6,
+                'alpha': 0.0,
+                'lambda': 0.0,
+                'gamma': 0.000593299899029,
+                'min_child_weight': 35.5923361375671,
+                'tree_method': 'gpu_hist', # GPU parameter
+                'predictor': 'gpu_predictor', # GPU parameter
+                'seed':int(2**n_fold)
                 }
 
-        clf = lgb.train(
+        # train model
+        clf = xgb.train(
                         params,
-                        lgb_train,
-                        valid_sets=[lgb_train, lgb_test],
-                        valid_names=['train', 'test'],
-#                        feval=eval_f,
+                        xgb_train,
                         num_boost_round=10000,
+                        evals=[(xgb_train,'train'),(xgb_test,'test')],
                         early_stopping_rounds= 200,
                         verbose_eval=100
                         )
 
         # save model
-        clf.save_model('../output/lgbm_'+str(n_fold)+'.txt')
+        clf.save_model('../output/xgb_'+str(n_fold)+'.txt')
 
-        oof_preds[valid_idx] = clf.predict(valid_x, num_iteration=clf.best_iteration)
-        sub_preds += clf.predict(test_df[feats], num_iteration=clf.best_iteration) / folds.n_splits
+        oof_preds[valid_idx] = clf.predict(xgb_test, output_margin=True)
+        sub_preds += clf.predict(test_df_dmtrx, output_margin=True) / folds.n_splits
 
-        fold_importance_df = pd.DataFrame()
-        fold_importance_df["feature"] = feats
-        fold_importance_df["importance"] = np.log1p(clf.feature_importance(importance_type='gain', iteration=clf.best_iteration))
+        # save feature importances
+        fold_importance_df = pd.DataFrame.from_dict(clf.get_score(importance_type='gain'), orient='index', columns=['importance'])
+        fold_importance_df["feature"] = fold_importance_df.index.tolist()
         fold_importance_df["fold"] = n_fold + 1
         feature_importance_df = pd.concat([feature_importance_df, fold_importance_df], axis=0)
+
         print('Fold %2d F1 Score : %.6f' % (n_fold + 1, f1_score(valid_y,np.argmax(oof_preds[valid_idx],axis=1),average='weighted')))
-        del clf, train_x, train_y, valid_x, valid_y
+        del clf, train_x, train_y, valid_x, valid_y, xgb_train, xgb_test
         gc.collect()
 
     # Full F1 Score & LINE Notify
@@ -133,8 +132,8 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
 
     # display importances
     display_importances(feature_importance_df,
-                        '../imp/lgbm_importances.png',
-                        '../imp/feature_importance_lgbm.csv')
+                        '../imp/xgb_importances.png',
+                        '../imp/feature_importance_xgb.csv')
 
     if not debug:
         # save prediction for submit
@@ -151,7 +150,7 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
         train_df = train_df.reset_index()
         train_df[['sid','click_mode','recommend_mode']].to_csv(oof_file_name, index=False)
 
-        line_notify('train_lgbm finished.')
+        line_notify('train_xgb finished.')
 
 def main(debug=False):
     with timer("Load Datasets"):
@@ -175,12 +174,12 @@ def main(debug=False):
         if debug:
             train_df=train_df.iloc[:1000]
 
-    with timer("Run LightGBM with kfold"):
-        kfold_lightgbm(train_df, test_df, num_folds=NUM_FOLDS, stratified=True, debug=debug)
+    with timer("Run XGBoost with kfold"):
+        kfold_xgboost(train_df, test_df, num_folds=NUM_FOLDS, stratified=True, debug=debug)
 
 if __name__ == "__main__":
-    submission_file_name = "../output/submission_lgbm.csv"
-    oof_file_name = "../output/oof_lgbm.csv"
-    configs = json.load(open('../configs/101_lgbm.json'))
+    submission_file_name = "../output/submission_xgb.csv"
+    oof_file_name = "../output/oof_xgb.csv"
+    configs = json.load(open('../configs/105_xgb.json'))
     with timer("Full model run"):
         main(debug=False)

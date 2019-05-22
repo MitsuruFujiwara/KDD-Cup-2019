@@ -7,7 +7,6 @@ import numpy as np
 import os
 import pandas as pd
 import seaborn as sns
-import sys
 import time
 import warnings
 
@@ -17,11 +16,11 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold, StratifiedKFold
 from tqdm import tqdm
 
-from utils import line_notify, loadpkl, save2pkl
+from utils import line_notify, loadpkl, eval_f
 from utils import NUM_FOLDS, FEATS_EXCLUDED, CAT_COLS
 
 #==============================================================================
-# Traing LightGBM (plans)
+# Traing LightGBM (baseline)
 #==============================================================================
 
 warnings.filterwarnings('ignore')
@@ -81,13 +80,13 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
 
         # params
         params ={
-#                'device' : 'gpu',
+                'device' : 'gpu',
 #                'gpu_use_dp':True,
                 'task': 'train',
                 'boosting': 'gbdt',
                 'objective': 'multiclass',
                 'metric': 'multiclass',
-                'learning_rate': 0.05,
+                'learning_rate': 0.01,
                 'num_leaves': 31,
                 'lambda_l1': 0.01,
                 'lambda_l2': 10,
@@ -95,15 +94,6 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
                 'feature_fraction': 0.8,
                 'bagging_fraction': 0.8,
                 'bagging_freq': 4,
-#                'num_leaves': 31,
-#                'colsample_bytree': 0.20461151519044,
-#                'subsample': 0.805742797052828,
-#                'max_depth': 10,
-#                'reg_alpha': 0.196466392224054,
-#                'reg_lambda': 0.045887453950229,
-#                'min_split_gain': 0.247050274075659,
-#                'min_child_weight': 23.9202696807894,
-#                'min_data_in_leaf': 24,
                 'verbose': -1,
                 'seed':int(2**n_fold),
                 'bagging_seed':int(2**n_fold),
@@ -122,7 +112,7 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
                         )
 
         # save model
-        clf.save_model('../output/lgbm_plans_{}.txt'.format(n_fold))
+        clf.save_model('../output/lgbm_'+str(n_fold)+'.txt')
 
         oof_preds[valid_idx] = clf.predict(valid_x, num_iteration=clf.best_iteration)
         sub_preds += clf.predict(test_df[feats], num_iteration=clf.best_iteration) / folds.n_splits
@@ -138,31 +128,30 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
 
     # Full F1 Score & LINE Notify
     full_f1 = f1_score(train_df['click_mode'], np.argmax(oof_preds,axis=1),average='weighted')
+    print('Full F1 Score %.6f' % full_f1)
     line_notify('Full F1 Score %.6f' % full_f1)
 
     # display importances
     display_importances(feature_importance_df,
-                        '../imp/lgbm_importances_plans.png',
-                        '../imp/feature_importance_lgbm_plans.csv')
+                        '../imp/lgbm_importances.png',
+                        '../imp/feature_importance_lgbm.csv')
 
     if not debug:
         # save prediction for submit
-        sub_preds = pd.DataFrame(sub_preds)
-        sub_preds.columns = ['pred_plans{}'.format(c) for c in sub_preds.columns]
-        sub_preds['sid'] = test_df.index
+        test_df['recommend_mode'] = np.argmax(sub_preds, axis=1)
+        test_df = test_df.reset_index()
+
+        # post processing
+        test_df['recommend_mode'][(test_df['plan_num_plans']==1)&(test_df['recommend_mode']!=0)] = test_df['plan_0_transport_mode'][(test_df['plan_num_plans']==1)&(test_df['recommend_mode']!=0)]
+
+        test_df[['sid','recommend_mode']].to_csv(submission_file_name, index=False)
 
         # save out of fold prediction
-        oof_preds = pd.DataFrame(oof_preds)
-        oof_preds.columns = ['pred_plans{}'.format(c) for c in oof_preds.columns]
-        oof_preds['sid'] = train_df.index
+        train_df.loc[:,'recommend_mode'] = np.argmax(oof_preds, axis=1)
+        train_df = train_df.reset_index()
+        train_df[['sid','click_mode','recommend_mode']].to_csv(oof_file_name, index=False)
 
-        # merge
-        df = oof_preds.append(sub_preds)
-
-        # save as pkl
-        save2pkl('../features/plans_pred.pkl', df)
-
-        line_notify('{} finished.'.format(sys.argv[0]))
+        line_notify('train_lgbm finished.')
 
 def main(debug=False):
     with timer("Load Datasets"):
@@ -179,6 +168,7 @@ def main(debug=False):
         # split train & test
         train_df = df[df['click_mode'].notnull()]
         test_df = df[df['click_mode'].isnull()]
+
         del df
         gc.collect()
 
@@ -189,8 +179,8 @@ def main(debug=False):
         kfold_lightgbm(train_df, test_df, num_folds=NUM_FOLDS, stratified=True, debug=debug)
 
 if __name__ == "__main__":
-    submission_file_name = "../output/submission_lgbm_plan.csv"
-    oof_file_name = "../output/oof_lgbm_plan.csv"
-    configs = json.load(open('../configs/102_lgbm.json'))
+    submission_file_name = "../output/submission_lgbm.csv"
+    oof_file_name = "../output/oof_lgbm.csv"
+    configs = json.load(open('../configs/104_lgbm.json'))
     with timer("Full model run"):
         main(debug=False)
