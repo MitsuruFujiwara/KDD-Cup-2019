@@ -7,6 +7,7 @@ import os
 import pandas as pd
 import seaborn as sns
 import time
+import sys
 import warnings
 import xgboost as xgb
 
@@ -20,7 +21,7 @@ from utils import line_notify, loadpkl, eval_f
 from utils import NUM_FOLDS, FEATS_EXCLUDED, CAT_COLS
 
 #==============================================================================
-# Traing XGBoost (baseline)
+# Traing XGBoost (all features)
 #==============================================================================
 
 warnings.filterwarnings('ignore')
@@ -150,7 +151,25 @@ def kfold_xgboost(train_df,test_df,num_folds,stratified=False,debug=False):
         train_df = train_df.reset_index()
         train_df[['sid','click_mode','recommend_mode']].to_csv(oof_file_name, index=False)
 
-        line_notify('train_xgb finished.')
+        # save prediction for submit
+        sub_preds = pd.DataFrame(sub_preds)
+        sub_preds.columns = ['pred_lgbm_plans{}'.format(c) for c in sub_preds.columns]
+        sub_preds['sid'] = test_df.index
+        sub_preds['click_mode'] = test_df['click_mode']
+
+        # save out of fold prediction
+        oof_preds = pd.DataFrame(oof_preds)
+        oof_preds.columns = ['pred_lgbm_plans{}'.format(c) for c in oof_preds.columns]
+        oof_preds['sid'] = train_df.index
+        oof_preds['click_mode'] = train_df['click_mode']
+
+        # merge
+        df = oof_preds.append(sub_preds)
+
+        # save as pkl
+        save2pkl('../features/lgbm_pred.pkl', df)
+
+        line_notify('{} finished.'.format(sys.argv[0]))
 
 def main(debug=False):
     with timer("Load Datasets"):

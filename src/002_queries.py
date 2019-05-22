@@ -2,11 +2,12 @@
 import gc
 import pandas as pd
 import numpy as np
+import sys
 import warnings
 
 from sklearn.decomposition import TruncatedSVD
 
-from utils import save2pkl
+from utils import save2pkl, to_json, line_notify
 
 warnings.filterwarnings('ignore')
 
@@ -62,14 +63,18 @@ def main(num_rows=None):
     queries_df['queries_hour'] = queries_df['req_time'].dt.hour
     queries_df['queries_weekday_count'] = queries_df['queries_weekday'].map(queries_df['queries_weekday'].value_counts())
     queries_df['queries_hour_count'] = queries_df['queries_hour'].map(queries_df['queries_hour'].value_counts())
-    
-    # TODO: Preprocessing
 
     # drop string features
     queries_df.drop(['o','d','o_d'], axis=1, inplace=True)
 
     # save as pkl
     save2pkl('../features/queries.pkl', queries_df)
+
+    # save configs
+    configs ={'features':queries_df.columns.to_list()}
+    to_json(configs,'../configs/101_lgbm_queries.json')
+
+    line_notify('{} finished.'.format(sys.argv[0]))
 
 if __name__ == '__main__':
     main()

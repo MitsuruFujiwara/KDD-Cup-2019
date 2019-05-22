@@ -5,9 +5,10 @@ import gc
 import json
 import pandas as pd
 import numpy as np
+import sys
 import warnings
 
-from utils import loadpkl, to_feature, to_json, save2pkl
+from utils import loadpkl, to_feature, to_json, save2pkl, line_notify
 
 warnings.filterwarnings('ignore')
 
@@ -30,7 +31,9 @@ def main(num_rows=None):
 
     # save configs
     configs ={'features':df.columns.to_list()}
-    to_json(configs,'../configs/107_lgbm.json')
+    to_json(configs,'../configs/103_lgbm_queries_plans.json')
+
+    line_notify('{} finished.'.format(sys.argv[0]))
 
 if __name__ == '__main__':
     main()

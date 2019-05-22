@@ -5,9 +5,10 @@ import gc
 import json
 import pandas as pd
 import numpy as np
+import sys
 import warnings
 
-from utils import loadpkl, to_feature, to_json, removeCorrelatedVariables, removeMissingVariables
+from utils import loadpkl, to_feature, to_json, removeCorrelatedVariables, removeMissingVariables, line_notify
 
 warnings.filterwarnings('ignore')
 
@@ -109,6 +110,8 @@ def main(num_rows=None):
     # save feature name list
     features_json = {'features':df.columns.tolist()}
     to_json(features_json,'../features/000_all_features.json')
+
+    line_notify('{} finished.'.format(sys.argv[0]))
 
 if __name__ == '__main__':
     main()

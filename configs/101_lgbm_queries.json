@@ -1,6 +1,8 @@
 {
     "features": [
         "sid",
+        "pid",
+        "req_time",
         "click_mode",
         "x_o",
         "y_o",

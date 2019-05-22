@@ -2,10 +2,11 @@
 import gc
 import pandas as pd
 import numpy as np
+import sys
 import warnings
 
 from tqdm import tqdm
-from utils import loadJSON, FlattenDataSimple, save2pkl
+from utils import loadJSON, FlattenDataSimple, save2pkl, line_notify
 
 warnings.filterwarnings('ignore')
 
@@ -396,6 +397,8 @@ def main(num_rows=None):
 
     # save as pkl
     save2pkl('../features/plans.pkl', plans_df)
+
+    line_notify('{} finished.'.format(sys.argv[0]))
 
 if __name__ == '__main__':
     main()
