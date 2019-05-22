@@ -19,10 +19,10 @@ from utils import FEATS_EXCLUDED, loadpkl, line_notify, to_json
 #==============================================================================
 
 # load datasets
-CONFIGS = json.load(open('../configs/103_lgbm.json'))
+CONFIGS = json.load(open('../configs/102_lgbm_queries_profiles.json'))
 
 # load feathers
-DF = loadpkl('../features/queries.pkl')
+DF = loadpkl('../features/queries_profiles.pkl')
 
 # split train & test
 TRAIN_DF = DF[DF['click_mode'].notnull()]
@@ -100,10 +100,10 @@ if __name__ == '__main__':
 
     # save result
     hist_df = study.trials_dataframe()
-    hist_df.to_csv("../output/optuna_result_lgbm_querie.csv")
+    hist_df.to_csv("../output/optuna_result_lgbm_queries_profiles.csv")
 
     # save json
     CONFIGS['params'] = trial.params
-    to_json(CONFIGS, '../configs/103_lgbm.json')
+    to_json(CONFIGS, '../configs/102_lgbm_queries_profiles.json')
 
     line_notify('{} finished. Value: {}'.format(sys.argv[0],trial.value))

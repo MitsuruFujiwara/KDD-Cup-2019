@@ -85,8 +85,7 @@ def kfold_xgboost(train_df,test_df,num_folds,stratified=False,debug=False):
                 'booster': 'gbtree',
                 'eval_metric':'mlogloss',
                 'num_class':12,
-                'silent':1,
-                'eta': 0.01,
+                'eta': 0.05,
                 'colsample_bytree': 0.602456630857159,
                 'colsample_bylevel': 0.674672876140377,
                 'subsample': 0.908588081216417,
@@ -97,6 +96,7 @@ def kfold_xgboost(train_df,test_df,num_folds,stratified=False,debug=False):
                 'min_child_weight': 35.5923361375671,
                 'tree_method': 'gpu_hist', # GPU parameter
                 'predictor': 'gpu_predictor', # GPU parameter
+                'silent':1,
                 'seed':int(2**n_fold)
                 }
 
@@ -153,13 +153,13 @@ def kfold_xgboost(train_df,test_df,num_folds,stratified=False,debug=False):
 
         # save prediction for submit
         sub_preds = pd.DataFrame(sub_preds)
-        sub_preds.columns = ['pred_lgbm_plans{}'.format(c) for c in sub_preds.columns]
+        sub_preds.columns = ['pred_xgb_plans{}'.format(c) for c in sub_preds.columns]
         sub_preds['sid'] = test_df.index
         sub_preds['click_mode'] = test_df['click_mode']
 
         # save out of fold prediction
         oof_preds = pd.DataFrame(oof_preds)
-        oof_preds.columns = ['pred_lgbm_plans{}'.format(c) for c in oof_preds.columns]
+        oof_preds.columns = ['pred_xgb_plans{}'.format(c) for c in oof_preds.columns]
         oof_preds['sid'] = train_df.index
         oof_preds['click_mode'] = train_df['click_mode']
 
@@ -167,7 +167,7 @@ def kfold_xgboost(train_df,test_df,num_folds,stratified=False,debug=False):
         df = oof_preds.append(sub_preds)
 
         # save as pkl
-        save2pkl('../features/lgbm_pred.pkl', df)
+        save2pkl('../features/xgb_pred.pkl', df)
 
         line_notify('{} finished.'.format(sys.argv[0]))
 
