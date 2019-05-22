@@ -122,12 +122,20 @@ def main(num_rows=None):
 
     # count features
     cols_mode = ['plan_{}_transport_mode'.format(i) for i in range(0,7)]
+    cols_mode_count = []
     for c in cols_mode:
         plans_df[c+'_count'] = plans_df[c].map(plans_df[c].value_counts())
+        cols_mode_count.append(c+'_count')
 
     # number features
     plans_df['plan_num_plans'] = plans_df[cols_mode].notnull().sum(axis=1)
     plans_df['plan_num_free_plans'] = (plans_df[cols_price]==0).sum(axis=1)
+
+    # rank features
+    plans_df[[ c +'_rank' for c in cols_distance]] = plans_df[cols_distance].rank(axis=1)
+    plans_df[[ c +'_rank' for c in cols_price]] = plans_df[cols_price].rank(axis=1)
+    plans_df[[ c +'_rank' for c in cols_eta]] = plans_df[cols_eta].rank(axis=1)
+    plans_df[[ c +'_rank' for c in cols_mode_count]] = plans_df[cols_mode_count].rank(axis=1)
 
     # ratio features
     for i in range(0,7):
@@ -269,6 +277,25 @@ def main(num_rows=None):
     plans_df['plan_price_distance_eta_prod_ratio_0_min'] = plans_df[cols_price_distance_eta_prod_ratio_0].min(axis=1)
     plans_df['plan_price_distance_eta_prod_ratio_0_var'] = plans_df[cols_price_distance_eta_prod_ratio_0].var(axis=1)
     plans_df['plan_price_distance_eta_prod_ratio_0_skew'] = plans_df[cols_price_distance_eta_prod_ratio_0].skew(axis=1)
+
+    # rank features
+    plans_df[[ c +'_rank' for c in cols_price_distance_ratio]] = plans_df[cols_price_distance_ratio].rank(axis=1)
+    plans_df[[ c +'_rank' for c in cols_price_eta_ratio]] = plans_df[cols_price_eta_ratio].rank(axis=1)
+    plans_df[[ c +'_rank' for c in cols_distance_eta_ratio]] = plans_df[cols_distance_eta_ratio].rank(axis=1)
+
+    plans_df[[ c +'_rank' for c in cols_price_distance_prod]] = plans_df[cols_price_distance_prod].rank(axis=1)
+    plans_df[[ c +'_rank' for c in cols_price_eta_prod]] = plans_df[cols_price_eta_prod].rank(axis=1)
+    plans_df[[ c +'_rank' for c in cols_distance_eta_prod]] = plans_df[cols_distance_eta_prod].rank(axis=1)
+    plans_df[[ c +'_rank' for c in cols_price_distance_eta_prod]] = plans_df[cols_price_distance_eta_prod].rank(axis=1)
+
+    plans_df[[ c +'_rank' for c in cols_distance_ratio_0]] = plans_df[cols_distance_ratio_0].rank(axis=1)
+    plans_df[[ c +'_rank' for c in cols_price_ratio_0]] = plans_df[cols_price_ratio_0].rank(axis=1)
+    plans_df[[ c +'_rank' for c in cols_eta_ratio_0]] = plans_df[cols_eta_ratio_0].rank(axis=1)
+
+    plans_df[[ c +'_rank' for c in cols_price_distance_prod_ratio_0]] = plans_df[cols_price_distance_prod_ratio_0].rank(axis=1)
+    plans_df[[ c +'_rank' for c in cols_price_eta_prod_ratio_0]] = plans_df[cols_price_eta_prod_ratio_0].rank(axis=1)
+    plans_df[[ c +'_rank' for c in cols_distance_eta_prod_ratio_0]] = plans_df[cols_distance_eta_prod_ratio_0].rank(axis=1)
+    plans_df[[ c +'_rank' for c in cols_price_distance_eta_prod_ratio_0]] = plans_df[cols_price_distance_eta_prod_ratio_0].rank(axis=1)
 
     # min-max plan (categorical) for ratio features
     plans_df['plan_price_distance_ratio_max_plan'] = plans_df[cols_price_distance_ratio].idxmax(axis=1).apply(lambda x: x[:6]+'_transport_mode' if type(x)==str else np.nan)
