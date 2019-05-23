@@ -11,7 +11,7 @@ from glob import glob
 from sklearn.model_selection import KFold, StratifiedKFold
 from tqdm import tqdm
 
-from utils import FEATS_EXCLUDED, loadpkl, line_notify, to_json
+from utils import FEATS_EXCLUDED, loadpkl, line_notify, to_json, CAT_COLS
 
 #==============================================================================
 # hyper parameter optimization by optuna
@@ -40,6 +40,7 @@ FEATS = [f for f in TRAIN_DF.columns if f not in FEATS_EXCLUDED]
 def objective(trial):
     lgbm_train = lightgbm.Dataset(TRAIN_DF[FEATS],
                                   TRAIN_DF['click_mode'],
+                                  categorical_feature=CAT_COLS,
                                   free_raw_data=False
                                   )
 

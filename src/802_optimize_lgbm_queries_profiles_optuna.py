@@ -40,6 +40,7 @@ FEATS = [f for f in TRAIN_DF.columns if f not in FEATS_EXCLUDED]
 def objective(trial):
     lgbm_train = lightgbm.Dataset(TRAIN_DF[FEATS],
                                   TRAIN_DF['click_mode'],
+                                  categorical_feature=['queries_weekday','queries_hour'],
                                   free_raw_data=False
                                   )
 
