@@ -17,7 +17,7 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold, StratifiedKFold
 from tqdm import tqdm
 
-from utils import line_notify, loadpkl, eval_f
+from utils import line_notify, loadpkl, eval_f, save2pkl
 from utils import NUM_FOLDS, FEATS_EXCLUDED, CAT_COLS
 
 #==============================================================================

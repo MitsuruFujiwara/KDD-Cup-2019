@@ -1,10 +1,10 @@
 
 import gc
 import json
-import lightgbm
 import numpy as np
 import optuna
 import pandas as pd
+import xgboost
 
 from glob import glob
 from sklearn.model_selection import KFold, StratifiedKFold
@@ -18,7 +18,7 @@ from utils import FEATS_EXCLUDED, loadpkl, line_notify, to_json
 #==============================================================================
 
 # load datasets
-CONFIGS = json.load(open('../configs/104_lgbm.json'))
+CONFIGS = json.load(open('../configs/105_xgb.json'))
 
 # load feathers
 FILES = sorted(glob('../features/*.feather'))
@@ -38,10 +38,8 @@ TRAIN_DF.set_index('sid', inplace=True)
 FEATS = [f for f in TRAIN_DF.columns if f not in FEATS_EXCLUDED]
 
 def objective(trial):
-    lgbm_train = lightgbm.Dataset(TRAIN_DF[FEATS],
-                                  TRAIN_DF['click_mode'],
-                                  free_raw_data=False
-                                  )
+    xgb_train = xgboost.DMatrix(TRAIN_DF[FEATS],
+                                  TRAIN_DF['click_mode'])
 
     params = {'objective': 'multiclass',
               'metric': 'multiclass',
@@ -60,6 +58,27 @@ def objective(trial):
               'min_child_weight': trial.suggest_uniform('min_child_weight', 0, 45),
               'min_data_in_leaf': trial.suggest_int('min_data_in_leaf', 16, 64)
               }
+
+        params = {
+                'device':'gpu',
+                'objective':'multi:softmax', # GPU parameter
+                'booster': 'gbtree',
+                'eval_metric':'mlogloss',
+                'num_class':12,
+                'eta': 0.05,
+                'colsample_bytree': 0.602456630857159,
+                'colsample_bylevel': 0.674672876140377,
+                'subsample': 0.908588081216417,
+                'max_depth': 6,
+                'alpha': 0.0,
+                'lambda': 0.0,
+                'gamma': 0.000593299899029,
+                'min_child_weight': 35.5923361375671,
+                'tree_method': 'gpu_hist', # GPU parameter
+                'predictor': 'gpu_predictor', # GPU parameter
+                'silent':1,
+                'seed':int(2**n_fold)
+                }
 
     if params['boosting_type'] == 'dart':
         params['drop_rate'] = trial.suggest_loguniform('drop_rate', 1e-8, 1.0)
@@ -100,10 +119,10 @@ if __name__ == '__main__':
 
     # save result
     hist_df = study.trials_dataframe()
-    hist_df.to_csv("../output/optuna_result_lgbm.csv")
+    hist_df.to_csv("../output/optuna_result_xgb.csv")
 
     # save json
     CONFIGS['params'] = trial.params
-    to_json(CONFIGS, '../configs/104_lgbm.json')
+    to_json(CONFIGS, '../configs/105_xgb.json')
 
     line_notify('optuna LightGBM finished. Value: {}'.format(trial.value))
