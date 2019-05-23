@@ -87,7 +87,7 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
                 'boosting': 'gbdt',
                 'objective': 'multiclass',
                 'metric': 'multiclass',
-                'learning_rate': 0.01,
+                'learning_rate': 0.05,
                 'num_leaves': 31,
                 'lambda_l1': 0.01,
                 'lambda_l2': 10,
@@ -155,13 +155,13 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
         # save prediction for submit
         sub_preds = pd.DataFrame(sub_preds)
         sub_preds.columns = ['pred_lgbm_plans{}'.format(c) for c in sub_preds.columns]
-        sub_preds['sid'] = test_df.index
+        sub_preds['sid'] = test_df['sid']
         sub_preds['click_mode'] = test_df['click_mode']
 
         # save out of fold prediction
         oof_preds = pd.DataFrame(oof_preds)
         oof_preds.columns = ['pred_lgbm_plans{}'.format(c) for c in oof_preds.columns]
-        oof_preds['sid'] = train_df.index
+        oof_preds['sid'] = train_df['sid']
         oof_preds['click_mode'] = train_df['click_mode']
 
         # merge

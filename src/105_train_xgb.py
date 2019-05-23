@@ -154,13 +154,13 @@ def kfold_xgboost(train_df,test_df,num_folds,stratified=False,debug=False):
         # save prediction for submit
         sub_preds = pd.DataFrame(sub_preds)
         sub_preds.columns = ['pred_xgb_plans{}'.format(c) for c in sub_preds.columns]
-        sub_preds['sid'] = test_df.index
+        sub_preds['sid'] = test_df['sid']
         sub_preds['click_mode'] = test_df['click_mode']
 
         # save out of fold prediction
         oof_preds = pd.DataFrame(oof_preds)
         oof_preds.columns = ['pred_xgb_plans{}'.format(c) for c in oof_preds.columns]
-        oof_preds['sid'] = train_df.index
+        oof_preds['sid'] = train_df['sid']
         oof_preds['click_mode'] = train_df['click_mode']
 
         # merge

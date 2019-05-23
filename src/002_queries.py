@@ -1,5 +1,6 @@
 
 import gc
+import json
 import pandas as pd
 import numpy as np
 import sys
@@ -71,7 +72,8 @@ def main(num_rows=None):
     save2pkl('../features/queries.pkl', queries_df)
 
     # save configs
-    configs ={'features':queries_df.columns.to_list()}
+    configs = json.load(open('../configs/101_lgbm_queries.json'))
+    configs['features'] = queries_df.columns.to_list()
     to_json(configs,'../configs/101_lgbm_queries.json')
 
     line_notify('{} finished.'.format(sys.argv[0]))

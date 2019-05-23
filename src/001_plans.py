@@ -5,7 +5,9 @@ import numpy as np
 import sys
 import warnings
 
+from chinese_calendar import is_holiday
 from tqdm import tqdm
+
 from utils import loadJSON, FlattenDataSimple, save2pkl, line_notify
 
 warnings.filterwarnings('ignore')
@@ -59,16 +61,20 @@ def main(num_rows=None):
     # datetime features
     plans_df['plan_weekday'] = plans_df['plan_time'].dt.weekday
     plans_df['plan_hour'] = plans_df['plan_time'].dt.hour
+    plans_df['plan_is_holiday'] = plans_df['plan_time'].apply(lambda x: is_holiday(x)).astype(int)
     plans_df['plan_weekday_hour'] = plans_df['plan_weekday'].astype(str)+'_'+plans_df['plan_hour'].astype(str)
+    plans_df['plan_is_holiday_hour'] = plans_df['plan_is_holiday'].astype(str)+'_'+plans_df['plan_hour'].astype(str)
     plans_df['plan_time_diff'] = plans_df.index.map(plans_df.sort_values('plan_time')['plan_time'].diff().dt.seconds)
 
     # factorize
     plans_df['plan_weekday_hour'], _ = pd.factorize(plans_df['plan_weekday_hour'])
+    plans_df['plan_is_holiday_hour'], _ = pd.factorize(plans_df['plan_is_holiday_hour'])
 
     # count features
     plans_df['plan_weekday_count'] = plans_df['plan_weekday'].map(plans_df['plan_weekday'].value_counts())
     plans_df['plan_hour_count'] = plans_df['plan_hour'].map(plans_df['plan_hour'].value_counts())
     plans_df['plan_weekday_hour_count'] = plans_df['plan_weekday_hour'].map(plans_df['plan_weekday_hour'].value_counts())
+    plans_df['plan_is_holiday_hour'] = plans_df['plan_is_holiday_hour'].map(plans_df['plan_is_holiday_hour'].value_counts())
 
     # stats features
     cols_transport_mode = ['plan_{}_transport_mode'.format(i) for i in range(0,7)]

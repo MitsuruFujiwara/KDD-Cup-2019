@@ -30,7 +30,8 @@ def main(num_rows=None):
     save2pkl('../features/queries_plans.pkl', df)
 
     # save configs
-    configs ={'features':df.columns.to_list()}
+    configs = json.load(open('../configs/103_lgbm_queries_plans.json'))
+    configs['features'] = df.columns.to_list()
     to_json(configs,'../configs/103_lgbm_queries_plans.json')
 
     line_notify('{} finished.'.format(sys.argv[0]))
