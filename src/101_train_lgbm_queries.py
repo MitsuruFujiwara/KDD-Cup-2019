@@ -18,7 +18,7 @@ from sklearn.model_selection import KFold, StratifiedKFold
 from tqdm import tqdm
 
 from utils import line_notify, loadpkl, save2pkl
-from utils import NUM_FOLDS, FEATS_EXCLUDED, CAT_COLS
+from utils import NUM_FOLDS, FEATS_EXCLUDED
 
 #==============================================================================
 # Traing LightGBM (queries)
@@ -72,11 +72,11 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
         # set data structure
         lgb_train = lgb.Dataset(train_x,
                                 label=train_y,
-                                categorical_feature=['queries_weekday','queries_hour'],
+                                categorical_feature=cat_cols,
                                 free_raw_data=False)
         lgb_test = lgb.Dataset(valid_x,
                                label=valid_y,
-                               categorical_feature=['queries_weekday','queries_hour'],
+                               categorical_feature=cat_cols,
                                free_raw_data=False)
 
         # params
@@ -183,5 +183,6 @@ def main(debug=False):
 
 if __name__ == "__main__":
     configs = json.load(open('../configs/101_lgbm_queries.json'))
+    cat_cols =['queries_weekday','queries_hour','x_o_round','y_o_round','x_d_round','y_d_round','queries_distance_round']
     with timer("Full model run"):
         main(debug=False)

@@ -391,6 +391,10 @@ def main(num_rows=None):
     plans_df['plan_price_distance_eta_prod_ratio_0_min_plan_count'] = plans_df['plan_price_distance_eta_prod_ratio_0_min_plan'].map(plans_df['plan_price_distance_eta_prod_ratio_0_min_plan'].value_counts())
 
     # target encoding
+    cols_target_encoding = ['plan_weekday','plan_hour','plan_weekday_hour', 'plan_num_plans', 'plan_num_free_plans']
+    plans_df = targetEncodingMultiClass(plans_df, 'click_mode', cols_target_encoding)
+
+    # target encoding
     train_plans = plans_df[plans_df['click_mode'].notnull()]
     target_dummies=pd.get_dummies(train_plans.click_mode.astype(int), prefix='target')
     cols_dummies = target_dummies.columns.to_list()
@@ -405,6 +409,15 @@ def main(num_rows=None):
     save2pkl('../features/plans.pkl', plans_df)
 
     line_notify('{} finished.'.format(sys.argv[0]))
+
+# target encoding for multi class
+def targetEncodingMultiClass(df, col_target, cols_encoding):
+    df_target = df[df[col_target].notnull()][col_target].astype(int)
+    df_dummies = pd.get_dummies(df_target, prefix='target')
+    cols_dummies = df_dummies.columns.to_list()
+    df_target = pd.concat([df_target,df_dummies],axis=1)
+
+
 
 if __name__ == '__main__':
     main()

@@ -72,11 +72,11 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
         # set data structure
         lgb_train = lgb.Dataset(train_x,
                                 label=train_y,
-                                categorical_feature=['queries_weekday','queries_hour'],
+                                categorical_feature=cat_cols,
                                 free_raw_data=False)
         lgb_test = lgb.Dataset(valid_x,
                                label=valid_y,
-                               categorical_feature=['queries_weekday','queries_hour'],
+                               categorical_feature=cat_cols,
                                free_raw_data=False)
 
         # params
@@ -88,13 +88,16 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
                 'objective': 'multiclass',
                 'metric': 'multiclass',
                 'learning_rate': 0.05,
-                'num_leaves': 31,
-                'lambda_l1': 0.01,
-                'lambda_l2': 10,
                 'num_class': 12,
-                'feature_fraction': 0.8,
-                'bagging_fraction': 0.8,
-                'bagging_freq': 4,
+                'num_leaves': 31,
+                'colsample_bytree': 0.3355912093075317,
+                'subsample': 0.6530318704502076,
+                'max_depth': 11,
+                'reg_alpha': 2.3771998447672105,
+                'reg_lambda': 2.1919049310096415,
+                'min_split_gain': 0.017438351500890903,
+                'min_child_weight': 8.77637355427759,
+                'min_data_in_leaf': 20,
                 'verbose': -1,
                 'seed':int(2**n_fold),
                 'bagging_seed':int(2**n_fold),
@@ -179,5 +182,6 @@ def main(debug=False):
 
 if __name__ == "__main__":
     configs = json.load(open('../configs/102_lgbm_queries_profiles.json'))
+    cat_cols =['queries_weekday','queries_hour','x_o_round','y_o_round','x_d_round','y_d_round','queries_distance_round']
     with timer("Full model run"):
         main(debug=False)
