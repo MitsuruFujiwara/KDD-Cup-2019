@@ -85,5 +85,16 @@
         "profile_64",
         "profile_65",
         "pid_count"
-    ]
+    ],
+    "params": {
+        "num_leaves": 31,
+        "colsample_bytree": 0.3355912093075317,
+        "subsample": 0.6530318704502076,
+        "max_depth": 11,
+        "reg_alpha": 2.3771998447672105,
+        "reg_lambda": 2.1919049310096415,
+        "min_split_gain": 0.017438351500890903,
+        "min_child_weight": 8.77637355427759,
+        "min_data_in_leaf": 20
+    }
 }
