@@ -99,15 +99,32 @@ def main(num_rows=None):
     queries_df['y_o_round'] = queries_df['y_o'].round(1)
     queries_df['x_d_round'] = queries_df['x_d'].round(1)
     queries_df['y_d_round'] = queries_df['y_d'].round(1)
-    queries_df['queries_distance_round'] =  queries_df['queries_distance'].round(1)
+    queries_df['queries_distance_round'] = queries_df['queries_distance'].round(1)
 
     queries_df['o_round'] = queries_df['x_o_round'].astype(str)+'_'+queries_df['y_o_round'].astype(str)
+    queries_df['d_round'] = queries_df['x_d_round'].astype(str)+'_'+queries_df['y_d_round'].astype(str)
+    queries_df['o_d_round'] = queries_df['o_round'].astype(str)+'_'+queries_df['d_round'].astype(str)
 
-    queries_df['queries_distance_round_count'] =  queries_df['queries_distance_round'].map(queries_df['queries_distance_round'].value_counts())
+    queries_df['queries_x_o_round_count'] = queries_df['x_o_round'].map(queries_df['x_o_round'].value_counts())
+    queries_df['queries_y_o_round_count'] = queries_df['y_o_round'].map(queries_df['y_o_round'].value_counts())
+    queries_df['queries_x_d_round_count'] = queries_df['x_d_round'].map(queries_df['x_d_round'].value_counts())
+    queries_df['queries_y_d_round_count'] = queries_df['y_d_round'].map(queries_df['y_d_round'].value_counts())
+    queries_df['queries_distance_round_count'] = queries_df['queries_distance_round'].map(queries_df['queries_distance_round'].value_counts())
+    queries_df['queries_o_round_count'] = queries_df['o_round'].map(queries_df['o_round'].value_counts())
+    queries_df['queries_d_round_count'] = queries_df['d_round'].map(queries_df['d_round'].value_counts())
+    queries_df['queries_o_d_round_count'] = queries_df['o_d_round'].map(queries_df['o_d_round'].value_counts())
+
+    # factorize
+    queries_df['x_o_round'], _ = pd.factorize(queries_df['x_o_round'])
+    queries_df['y_o_round'], _ = pd.factorize(queries_df['y_o_round'])
+    queries_df['x_d_round'], _ = pd.factorize(queries_df['x_d_round'])
+    queries_df['y_d_round'], _ = pd.factorize(queries_df['y_d_round'])
+    queries_df['queries_distance_round'], _ = pd.factorize(queries_df['queries_distance_round'])
 
     # drop string features
     cols_drop = ['o','d','o_d','o_d_is_holiday','o_d_weekday','o_d_hour',
-                 'o_is_holiday','o_weekday','o_hour','d_is_holiday','d_weekday','d_hour']
+                 'o_is_holiday','o_weekday','o_hour','d_is_holiday','d_weekday','d_hour',
+                 'o_round','d_round','o_d_round']
     queries_df.drop(cols_drop, axis=1, inplace=True)
 
     # save as pkl

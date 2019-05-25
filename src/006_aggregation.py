@@ -23,16 +23,16 @@ def main(num_rows=None):
     profiles = loadpkl('../features/profiles.pkl')
     queries_pred = loadpkl('../features/queries_pred.pkl')
     queries_profiles_pred = loadpkl('../features/queries_profiles_pred.pkl')
-    queries_plans_pred = loadpkl('../features/queries_plans_pred.pkl')
+#    queries_plans_pred = loadpkl('../features/queries_plans_pred.pkl')
 
     # merge
     df = pd.merge(df, queries, on=['sid','click_mode'], how='left')
     df = pd.merge(df, profiles, on='pid', how='left')
     df = pd.merge(df, queries_pred, on='sid', how='left')
     df = pd.merge(df, queries_profiles_pred, on='sid', how='left')
-    df = pd.merge(df, queries_plans_pred, on='sid', how='left')
+#    df = pd.merge(df, queries_plans_pred, on='sid', how='left')
 
-    del queries, profiles, queries_pred, queries_profiles_pred, queries_plans_pred
+    del queries, profiles, queries_pred, queries_profiles_pred
     gc.collect()
 
     # count features
@@ -47,11 +47,11 @@ def main(num_rows=None):
     for i, c in enumerate(cols_plan_distance):
         df['plan_queries_distance_ratio{}'.format(i)] = df[c] / df['queries_distance']
         df['plan_queries_distance_diff{}'.format(i)] = df[c] - df['queries_distance']
-        
+
     # stats features for preds
     cols_pred_queries = ['pred_queries{}'.format(i) for i in range(0,12)]
     cols_pred_queries_profiles = ['pred_queries_profiles{}'.format(i) for i in range(0,12)]
-    cols_pred_queries_plans = ['pred_queries_plans{}'.format(i) for i in range(0,12)]
+#    cols_pred_queries_plans = ['pred_queries_plans{}'.format(i) for i in range(0,12)]
 
     df['pred_queries_mean'] = df[cols_pred_queries].mean(axis=1)
     df['pred_queries_sum'] = df[cols_pred_queries].sum(axis=1)
@@ -67,15 +67,17 @@ def main(num_rows=None):
     df['pred_queries_profiles_var'] = df[cols_pred_queries_profiles].var(axis=1)
     df['pred_queries_profiles_skew'] = df[cols_pred_queries_profiles].skew(axis=1)
 
+    """
     df['pred_queries_plans_mean'] = df[cols_pred_queries_plans].mean(axis=1)
     df['pred_queries_plans_sum'] = df[cols_pred_queries_plans].sum(axis=1)
     df['pred_queries_plans_max'] = df[cols_pred_queries_plans].max(axis=1)
     df['pred_queries_plans_min'] = df[cols_pred_queries_plans].min(axis=1)
     df['pred_queries_plans_var'] = df[cols_pred_queries_plans].var(axis=1)
     df['pred_queries_plans_skew'] = df[cols_pred_queries_plans].skew(axis=1)
+    """
 
     for i in range(0,12):
-        cols = ['pred_queries{}'.format(i),'pred_queries_profiles{}'.format(i),'pred_queries_plans{}'.format(i)]
+        cols = ['pred_queries{}'.format(i),'pred_queries_profiles{}'.format(i)]
         df['pred_mean{}'.format(i)] = df[cols].mean(axis=1)
         df['pred_sum{}'.format(i)] = df[cols].sum(axis=1)
         df['pred_max{}'.format(i)] = df[cols].max(axis=1)

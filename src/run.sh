@@ -12,5 +12,5 @@
 #python 802_optimize_lgbm_queries_profiles_optuna.py
 #python 803_optimize_lgbm_queries_plans_optuna.py
 python 104_train_lgbm.py
-python 105_train_xgb.py
-python 201_blend.py
+#python 105_train_xgb.py
+#python 201_blend.py
