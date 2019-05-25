@@ -6,6 +6,7 @@ import numpy as np
 import sys
 import warnings
 
+from chinese_calendar import is_holiday
 from sklearn.decomposition import TruncatedSVD
 
 from utils import save2pkl, to_json, line_notify
@@ -40,12 +41,13 @@ def main(num_rows=None):
     # to datetime
     queries_df['req_time'] = pd.to_datetime(queries_df['req_time'])
 
-    # features distance
+    # distance features
     queries_df['x_o']=queries_df['o'].apply(lambda x: x.split(',')[0]).astype(float)
     queries_df['y_o']=queries_df['o'].apply(lambda x: x.split(',')[1]).astype(float)
     queries_df['x_d']=queries_df['d'].apply(lambda x: x.split(',')[0]).astype(float)
     queries_df['y_d']=queries_df['d'].apply(lambda x: x.split(',')[1]).astype(float)
 
+    # count features
     queries_df['queries_o_count']=queries_df['o'].map(queries_df['o'].value_counts())
     queries_df['queries_d_count']=queries_df['d'].map(queries_df['d'].value_counts())
 
@@ -62,11 +64,51 @@ def main(num_rows=None):
     # datetime features
     queries_df['queries_weekday'] = queries_df['req_time'].dt.weekday
     queries_df['queries_hour'] = queries_df['req_time'].dt.hour
+    queries_df['queries_is_holiday'] = queries_df['req_time'].apply(lambda x: is_holiday(x)).astype(int)
+
     queries_df['queries_weekday_count'] = queries_df['queries_weekday'].map(queries_df['queries_weekday'].value_counts())
     queries_df['queries_hour_count'] = queries_df['queries_hour'].map(queries_df['queries_hour'].value_counts())
 
+    # coordinate & datetime features
+    queries_df['o_d_is_holiday'] = queries_df['queries_is_holiday'].astype(str)+'_'+queries_df['o_d']
+    queries_df['o_d_weekday'] = queries_df['queries_weekday'].astype(str)+'_'+queries_df['o_d']
+    queries_df['o_d_hour'] = queries_df['queries_hour'].astype(str)+'_'+queries_df['o_d']
+
+    queries_df['o_is_holiday'] = queries_df['queries_is_holiday'].astype(str)+'_'+queries_df['o']
+    queries_df['o_weekday'] = queries_df['queries_weekday'].astype(str)+'_'+queries_df['o']
+    queries_df['o_hour'] = queries_df['queries_hour'].astype(str)+'_'+queries_df['o']
+
+    queries_df['d_is_holiday'] = queries_df['queries_is_holiday'].astype(str)+'_'+queries_df['d']
+    queries_df['d_weekday'] = queries_df['queries_weekday'].astype(str)+'_'+queries_df['d']
+    queries_df['d_hour'] = queries_df['queries_hour'].astype(str)+'_'+queries_df['d']
+
+    queries_df['queries_o_d_is_holiday_count'] = queries_df['o_d_is_holiday'].map(queries_df['o_d_is_holiday'].value_counts())
+    queries_df['queries_o_d_weekday_count'] = queries_df['o_d_weekday'].map(queries_df['o_d_weekday'].value_counts())
+    queries_df['queries_o_d_hour_count'] = queries_df['o_d_hour'].map(queries_df['o_d_hour'].value_counts())
+
+    queries_df['queries_o_is_holiday_count'] = queries_df['o_d_is_holiday'].map(queries_df['o_d_is_holiday'].value_counts())
+    queries_df['queries_o_weekday_count'] = queries_df['o_d_weekday'].map(queries_df['o_d_weekday'].value_counts())
+    queries_df['queries_o_hour_count'] = queries_df['o_d_hour'].map(queries_df['o_d_hour'].value_counts())
+
+    queries_df['queries_o_d_is_holiday_count'] = queries_df['o_d_is_holiday'].map(queries_df['o_d_is_holiday'].value_counts())
+    queries_df['queries_o_d_weekday_count'] = queries_df['o_d_weekday'].map(queries_df['o_d_weekday'].value_counts())
+    queries_df['queries_o_d_hour_count'] = queries_df['o_d_hour'].map(queries_df['o_d_hour'].value_counts())
+
+    # rounded value features
+    queries_df['x_o_round'] = queries_df['x_o'].round(1)
+    queries_df['y_o_round'] = queries_df['y_o'].round(1)
+    queries_df['x_d_round'] = queries_df['x_d'].round(1)
+    queries_df['y_d_round'] = queries_df['y_d'].round(1)
+    queries_df['queries_distance_round'] =  queries_df['queries_distance'].round(1)
+
+    queries_df['o_round'] = queries_df['x_o_round'].astype(str)+'_'+queries_df['y_o_round'].astype(str)
+
+    queries_df['queries_distance_round_count'] =  queries_df['queries_distance_round'].map(queries_df['queries_distance_round'].value_counts())
+
     # drop string features
-    queries_df.drop(['o','d','o_d'], axis=1, inplace=True)
+    cols_drop = ['o','d','o_d','o_d_is_holiday','o_d_weekday','o_d_hour',
+                 'o_is_holiday','o_weekday','o_hour','d_is_holiday','d_weekday','d_hour']
+    queries_df.drop(cols_drop, axis=1, inplace=True)
 
     # save as pkl
     save2pkl('../features/queries.pkl', queries_df)

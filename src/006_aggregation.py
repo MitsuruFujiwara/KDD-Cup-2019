@@ -46,7 +46,8 @@ def main(num_rows=None):
 
     for i, c in enumerate(cols_plan_distance):
         df['plan_queries_distance_ratio{}'.format(i)] = df[c] / df['queries_distance']
-
+        df['plan_queries_distance_diff{}'.format(i)] = df[c] - df['queries_distance']
+        
     # stats features for preds
     cols_pred_queries = ['pred_queries{}'.format(i) for i in range(0,12)]
     cols_pred_queries_profiles = ['pred_queries_profiles{}'.format(i) for i in range(0,12)]
