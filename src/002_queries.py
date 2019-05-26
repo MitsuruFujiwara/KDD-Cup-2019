@@ -9,7 +9,7 @@ import warnings
 from chinese_calendar import is_holiday
 from sklearn.decomposition import TruncatedSVD
 
-from utils import save2pkl, to_json, line_notify
+from utils import save2pkl, to_json, line_notify, targetEncodingMultiClass
 
 warnings.filterwarnings('ignore')
 
@@ -120,6 +120,10 @@ def main(num_rows=None):
     queries_df['x_d_round'], _ = pd.factorize(queries_df['x_d_round'])
     queries_df['y_d_round'], _ = pd.factorize(queries_df['y_d_round'])
     queries_df['queries_distance_round'], _ = pd.factorize(queries_df['queries_distance_round'])
+
+    # target encoding
+    cols_encoding = ['x_o_round','y_o_round','x_d_round','y_d_round','queries_distance_round']
+    queries_df = targetEncodingMultiClass(queries_df, 'click_mode', cols_encoding)
 
     # drop string features
     cols_drop = ['o','d','o_d','o_d_is_holiday','o_d_weekday','o_d_hour',

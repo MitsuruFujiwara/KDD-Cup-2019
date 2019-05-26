@@ -8,7 +8,10 @@ import numpy as np
 import sys
 import warnings
 
-from utils import loadpkl, to_feature, to_json, removeCorrelatedVariables, removeMissingVariables, line_notify
+from tqdm import tqdm
+
+from utils import loadpkl, to_feature, to_json, line_notify
+from utils import removeCorrelatedVariables, removeMissingVariables, targetEncodingMultiClass
 
 warnings.filterwarnings('ignore')
 
@@ -48,6 +51,9 @@ def main(num_rows=None):
         df['plan_queries_distance_ratio{}'.format(i)] = df[c] / df['queries_distance']
         df['plan_queries_distance_diff{}'.format(i)] = df[c] - df['queries_distance']
 
+    # target encoding
+    df = targetEncodingMultiClass(df, 'click_mode', ['profile_k_means'])
+
     # stats features for preds
     cols_pred_queries = ['pred_queries{}'.format(i) for i in range(0,12)]
     cols_pred_queries_profiles = ['pred_queries_profiles{}'.format(i) for i in range(0,12)]
@@ -76,7 +82,8 @@ def main(num_rows=None):
     df['pred_queries_plans_skew'] = df[cols_pred_queries_plans].skew(axis=1)
     """
 
-    for i in range(0,12):
+    # stats features for each classes
+    for i in tqdm(range(0,12)):
         cols = ['pred_queries{}'.format(i),'pred_queries_profiles{}'.format(i)]
         df['pred_mean{}'.format(i)] = df[cols].mean(axis=1)
         df['pred_sum{}'.format(i)] = df[cols].sum(axis=1)
@@ -85,13 +92,7 @@ def main(num_rows=None):
         df['pred_var{}'.format(i)] = df[cols].var(axis=1)
         df['pred_skew{}'.format(i)] = df[cols].skew(axis=1)
 
-        cols_target = ['plan_{}_transport_mode_target_{}'.format(j,i) for j in range(0,7)]
-        cols_target = cols_target +['plan_weekday_target_{}'.format(i)]
-        cols_target = cols_target +['plan_hour_target_{}'.format(i)]
-        cols_target = cols_target +['plan_weekday_hour_target_{}'.format(i)]
-        cols_target = cols_target +['plan_num_plans_target_{}'.format(i)]
-        cols_target = cols_target +['plan_num_free_plans_target_{}'.format(i)]
-
+        cols_target = [c for c in df.columns if '_target_{}'.format(i) in c]
         df['target_mean{}'.format(i)] = df[cols_target].mean(axis=1)
         df['target_sum{}'.format(i)] = df[cols_target].sum(axis=1)
         df['target_max{}'.format(i)] = df[cols_target].max(axis=1)

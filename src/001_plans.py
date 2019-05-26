@@ -8,7 +8,7 @@ import warnings
 from chinese_calendar import is_holiday
 from tqdm import tqdm
 
-from utils import loadJSON, FlattenDataSimple, save2pkl, line_notify
+from utils import loadJSON, FlattenDataSimple, save2pkl, line_notify, targetEncodingMultiClass
 
 warnings.filterwarnings('ignore')
 
@@ -74,7 +74,7 @@ def main(num_rows=None):
     plans_df['plan_weekday_count'] = plans_df['plan_weekday'].map(plans_df['plan_weekday'].value_counts())
     plans_df['plan_hour_count'] = plans_df['plan_hour'].map(plans_df['plan_hour'].value_counts())
     plans_df['plan_weekday_hour_count'] = plans_df['plan_weekday_hour'].map(plans_df['plan_weekday_hour'].value_counts())
-    plans_df['plan_is_holiday_hour'] = plans_df['plan_is_holiday_hour'].map(plans_df['plan_is_holiday_hour'].value_counts())
+    plans_df['plan_is_holiday_hour_count'] = plans_df['plan_is_holiday_hour'].map(plans_df['plan_is_holiday_hour'].value_counts())
 
     # stats features
     cols_transport_mode = ['plan_{}_transport_mode'.format(i) for i in range(0,7)]
@@ -391,33 +391,16 @@ def main(num_rows=None):
     plans_df['plan_price_distance_eta_prod_ratio_0_min_plan_count'] = plans_df['plan_price_distance_eta_prod_ratio_0_min_plan'].map(plans_df['plan_price_distance_eta_prod_ratio_0_min_plan'].value_counts())
 
     # target encoding
-    cols_target_encoding = ['plan_weekday','plan_hour','plan_weekday_hour', 'plan_num_plans', 'plan_num_free_plans']
+    cols_target_encoding = ['plan_weekday','plan_hour','plan_is_holiday',
+                            'plan_weekday_hour','plan_is_holiday_hour',
+                            'plan_num_plans', 'plan_num_free_plans']
+    cols_target_encoding = cols_target_encoding + cols_ratio_plan + cols_min_max_plan + cols_transport_mode
     plans_df = targetEncodingMultiClass(plans_df, 'click_mode', cols_target_encoding)
-
-    # target encoding
-    train_plans = plans_df[plans_df['click_mode'].notnull()]
-    target_dummies=pd.get_dummies(train_plans.click_mode.astype(int), prefix='target')
-    cols_dummies = target_dummies.columns.to_list()
-    train_plans = pd.concat([train_plans, target_dummies],axis=1)
-    cols_target_encoding = ['plan_weekday','plan_hour','plan_weekday_hour', 'plan_num_plans', 'plan_num_free_plans']
-    for c in tqdm(cols_target_encoding+cols_transport_mode):
-        df_g = train_plans[[c]+cols_dummies].groupby(c).mean()
-        for i,d in enumerate(cols_dummies):
-            plans_df['{}_target_{}'.format(c,i)]=plans_df[c].map(df_g[d])
 
     # save as pkl
     save2pkl('../features/plans.pkl', plans_df)
 
     line_notify('{} finished.'.format(sys.argv[0]))
-
-# target encoding for multi class
-def targetEncodingMultiClass(df, col_target, cols_encoding):
-    df_target = df[df[col_target].notnull()][col_target].astype(int)
-    df_dummies = pd.get_dummies(df_target, prefix='target')
-    cols_dummies = df_dummies.columns.to_list()
-    df_target = pd.concat([df_target,df_dummies],axis=1)
-
-
 
 if __name__ == '__main__':
     main()

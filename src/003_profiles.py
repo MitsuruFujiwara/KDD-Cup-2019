@@ -5,6 +5,7 @@ import numpy as np
 import sys
 import warnings
 
+from sklearn.cluster import KMeans
 from sklearn.decomposition import TruncatedSVD, NMF
 
 from utils import save2pkl, loadpkl, line_notify
@@ -18,7 +19,6 @@ warnings.filterwarnings('ignore')
 def main(num_rows=None):
     # load csv & pkl
     profiles = pd.read_csv('../input/data_set_phase1/profiles.csv')
-    queries = loadpkl('../features/queries.pkl')
 
     # change columns name
     profiles.columns = ['pid']+['profile_{}'.format(i) for i in range(0,66)]
@@ -51,6 +51,11 @@ def main(num_rows=None):
 
     # merge
     profiles = profiles.merge(nmf_x, on='pid', how='left')
+
+    # k-means clustering
+    kmeans_model = KMeans(n_clusters=10, random_state=326)
+    kmeans_model.fit(profiles[feats].values)
+    profiles['profile_k_means'] = kmeans_model.labels_
 
     # save as pkl
     save2pkl('../features/profiles.pkl', profiles)

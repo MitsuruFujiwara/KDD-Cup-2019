@@ -6,6 +6,7 @@ import requests
 import pickle
 
 from sklearn.metrics import f1_score
+from tqdm import tqdm
 
 #==============================================================================
 # utils
@@ -37,7 +38,8 @@ CAT_COLS = cat_cols+['plan_weekday', 'plan_hour',
                      'plan_price_eta_prod_ratio_0_max_plan','plan_price_eta_prod_ratio_0_min_plan',
                      'plan_distance_eta_prod_ratio_0_max_plan', 'plan_distance_eta_prod_ratio_0_min_plan',
                      'plan_price_distance_eta_prod_ratio_0_max_plan','plan_price_distance_eta_prod_ratio_0_min_plan',
-                     'x_o_round','y_o_round','x_d_round','y_d_round','queries_distance_round']
+                     'x_o_round','y_o_round','x_d_round','y_d_round','queries_distance_round',
+                     'profile_k_means']
 
 # to feather
 def to_feature(df, path):
@@ -184,3 +186,16 @@ def FlattenDataSimple(df, key):
 def to_json(data_dict, path):
     with open(path, 'w') as f:
         json.dump(data_dict, f, indent=4)
+
+# target encoding for multi class
+def targetEncodingMultiClass(df, col_target, cols_encoding):
+    df_target = df[df[col_target].notnull()]
+    df_dummies = pd.get_dummies(df_target[col_target].astype(int), prefix='target')
+    cols_dummies = df_dummies.columns.to_list()
+    df_target = pd.concat([df_target,df_dummies],axis=1)
+    print('target encoding...')
+    for c in tqdm(cols_encoding):
+        df_grouped = df_target[[c]+cols_dummies].groupby(c).mean()
+        for i,d in enumerate(cols_dummies):
+            df['{}_target_{}'.format(c,i)] = df[c].map(df_grouped[d])
+    return df
