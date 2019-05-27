@@ -5,6 +5,7 @@ import lightgbm
 import numpy as np
 import optuna
 import pandas as pd
+import sys
 
 from glob import glob
 from sklearn.model_selection import KFold, StratifiedKFold
@@ -46,7 +47,7 @@ def objective(trial):
     params = {'objective': 'multiclass',
               'metric': 'multiclass',
               'verbosity': -1,
-              'learning_rate': 0.01,
+              'learning_rate': 0.05,
               'num_class': 12,
               'device': 'gpu',
               'boosting_type': 'gbdt',
@@ -106,4 +107,4 @@ if __name__ == '__main__':
     CONFIGS['params'] = trial.params
     to_json(CONFIGS, '../configs/104_lgbm.json')
 
-    line_notify('optuna LightGBM finished. Value: {}'.format(trial.value))
+    line_notify('{} finished. Value: {}'.format(sys.argv[0],trial.value))
