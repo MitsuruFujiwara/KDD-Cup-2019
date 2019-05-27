@@ -6,6 +6,7 @@ import numpy as np
 import optuna
 import pandas as pd
 import sys
+import warnings
 
 from glob import glob
 from sklearn.model_selection import KFold, StratifiedKFold
@@ -17,6 +18,8 @@ from utils import FEATS_EXCLUDED, loadpkl, line_notify, to_json
 # hyper parameter optimization by optuna
 # https://github.com/pfnet/optuna/blob/master/examples/lightgbm_simple.py
 #==============================================================================
+
+warnings.filterwarnings('ignore')
 
 # load datasets
 CONFIGS = json.load(open('../configs/104_lgbm.json'))
