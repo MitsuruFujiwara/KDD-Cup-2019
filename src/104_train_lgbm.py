@@ -88,13 +88,16 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
                 'objective': 'multiclass',
                 'metric': 'multiclass',
                 'learning_rate': 0.01,
-                'num_leaves': 31,
-                'lambda_l1': 0.01,
-                'lambda_l2': 10,
                 'num_class': 12,
-                'feature_fraction': 0.8,
-                'bagging_fraction': 0.8,
-                'bagging_freq': 4,
+                'num_leaves': 52,
+                'colsample_bytree': 0.3490457769968177,
+                'subsample': 0.543646263362097,
+                'max_depth': 11,
+                'reg_alpha': 4.762312990232561,
+                'reg_lambda': 9.98131082276387,
+                'min_split_gain': 0.19161156850826594,
+                'min_child_weight': 15.042054927368088,
+                'min_data_in_leaf': 17
                 'verbose': -1,
                 'seed':int(2**n_fold),
                 'bagging_seed':int(2**n_fold),
@@ -144,7 +147,8 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
 
         # post processing
         test_df['recommend_mode'][(test_df['plan_num_plans']==1)&(test_df['recommend_mode']!=0)] = test_df['plan_0_transport_mode'][(test_df['plan_num_plans']==1)&(test_df['recommend_mode']!=0)]
-
+        
+        # save csv
         test_df[['sid','recommend_mode']].to_csv(submission_file_name, index=False)
 
         # save out of fold prediction
