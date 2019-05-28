@@ -97,7 +97,7 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
                 'reg_lambda': 9.98131082276387,
                 'min_split_gain': 0.19161156850826594,
                 'min_child_weight': 15.042054927368088,
-                'min_data_in_leaf': 17
+                'min_data_in_leaf': 17,
                 'verbose': -1,
                 'seed':int(2**n_fold),
                 'bagging_seed':int(2**n_fold),
@@ -147,7 +147,7 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
 
         # post processing
         test_df['recommend_mode'][(test_df['plan_num_plans']==1)&(test_df['recommend_mode']!=0)] = test_df['plan_0_transport_mode'][(test_df['plan_num_plans']==1)&(test_df['recommend_mode']!=0)]
-        
+
         # save csv
         test_df[['sid','recommend_mode']].to_csv(submission_file_name, index=False)
 

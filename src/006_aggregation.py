@@ -54,6 +54,18 @@ def main(num_rows=None):
     # target encoding
     df = targetEncodingMultiClass(df, 'click_mode', ['profile_k_means'])
 
+    # post processing
+    cols_transport_mode = ['plan_{}_transport_mode'.format(i) for i in range(0,7)]
+    print('post processing...')
+    for i in tqdm(range(1,12)):
+        tmp = np.zeros(len(df))
+        for c in cols_transport_mode:
+            tmp += (df[c]==i).astype(int)
+
+        cols_target = [c for c in df.columns if '_target_{}'.format(i) in c]
+        for c in cols_target+['pred_queries{}'.format(i),'pred_queries_profiles{}'.format(i)]:
+            df[c]=df[c]*(tmp>0)
+
     # stats features for preds
     cols_pred_queries = ['pred_queries{}'.format(i) for i in range(0,12)]
     cols_pred_queries_profiles = ['pred_queries_profiles{}'.format(i) for i in range(0,12)]
@@ -83,6 +95,7 @@ def main(num_rows=None):
     """
 
     # stats features for each classes
+    print('stats features...')
     for i in tqdm(range(0,12)):
         cols = ['pred_queries{}'.format(i),'pred_queries_profiles{}'.format(i)]
         df['pred_mean{}'.format(i)] = df[cols].mean(axis=1)
