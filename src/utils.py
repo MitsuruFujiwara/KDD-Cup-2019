@@ -1,5 +1,6 @@
 
 import json
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import requests
@@ -199,3 +200,39 @@ def targetEncodingMultiClass(df, col_target, cols_encoding):
         for i,d in enumerate(cols_dummies):
             df['{}_target_{}'.format(c,i)] = df[c].map(df_grouped[d])
     return df
+
+# scaling predictions
+def scalingPredictions(pred_df):
+    cols_pred = pred_df.columns.to_list()
+    pred_df['pred_min'] = pred_df[cols_pred].min(axis=1)
+    pred_df['pred_max'] = pred_df[cols_pred].max(axis=1)
+    for c in cols_pred:
+        pred_df[c] = (pred_df[c]-pred_df['pred_min'])/(pred_df['pred_max']-pred_df['pred_min'])
+
+    pred_df['pred_sum'] = pred_df[cols_pred].sum(axis=1)
+    for c in cols_pred:
+        pred_df[c] = pred_df[c]/pred_df['pred_sum']
+
+    return pred_df[cols_pred]
+
+# get best multiple
+def getBestMultiple(pred_df, col, cols_pred, output):
+    best_f1=0.0
+    best_m = 1.0
+    f1s = []
+    for _m in np.arange(1.0,2.0,0.01):
+        tmp_pred = pred_df[cols_pred]
+        tmp_pred[col] *= _m
+        _f1 = f1_score(pred_df['click_mode'], np.argmax(tmp_pred.values,axis=1),average='weighted')
+        f1s.append(_f1)
+        print('multiple: {}, f1 score: {}'.format(_m,_f1))
+        if _f1 > best_f1:
+            best_f1 = _f1
+            best_m = _m
+        del tmp_pred
+    # plot thresholds
+    plt.figure()
+    plt.plot(np.arange(1.0,2.0,0.01), f1s)
+    plt.savefig(output)
+
+    return best_m
