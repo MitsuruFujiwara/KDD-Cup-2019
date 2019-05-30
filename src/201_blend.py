@@ -53,11 +53,11 @@ def main():
     oof_pred_lgbm = pred_lgbm[pred_lgbm['click_mode'].notnull()]
     oof_pred_xgb = pred_xgb[pred_xgb['click_mode'].notnull()]
 
-    weights = getBestWeights(oof_pred_lgbm['click_mode'], oof_pred_lgbm, oof_pred_xgb)
+    w = getBestWeights(oof_pred_lgbm.click_mode, oof_pred_lgbm, oof_pred_xgb, '../imp/weight.png')
 
     # calc prediction for each class
     cols_pred =[]
-    for i , w in enumerate(weights):
+    for i in range(0,12):
         pred['pred_{}'.format(i)] = w*pred_lgbm['pred_lgbm_plans{}'.format(i)]+ (1.0-w)*pred_xgb['pred_xgb_plans{}'.format(i)]
         cols_pred.append('pred_{}'.format(i))
 
