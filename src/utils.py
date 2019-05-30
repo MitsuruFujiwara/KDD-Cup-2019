@@ -238,31 +238,44 @@ def getBestMultiple(pred_df, col, cols_pred, output):
     return best_m
 
 # search a best weight for 2 predictions
-def getBestWeights(act, pred_lgbm, pred_xgb, output):
-    search_range = np.arange(0.3, 0.6, 0.005)
-    best_f1=0.0
-    best_w = 0.5
-    f1s = []
-    for _w in search_range:
-        # get predictions for each class
-        cols_pred=[]
-        _pred = pd.DataFrame()
-        for i in range(0,12):
-            _pred['pred_{}'.format(i)] = _w*pred_lgbm['pred_lgbm_plans{}'.format(i)]+ (1.0-_w)*pred_xgb['pred_xgb_plans{}'.format(i)]
-            cols_pred.append('pred_{}'.format(i))
+def getBestWeights(act, pred_lgbm, pred_xgb):
+    search_range = np.arange(0.0, 1.01, 0.01)
+    best_weights = []
 
-        # calc f1 score
-        _f1 = f1_score(act, np.argmax(_pred[cols_pred].values,axis=1),average='weighted')
-        f1s.append(_f1)
-        print('w: {}, f1 score: {}'.format(_w,_f1))
-        if _f1 > best_f1:
-            best_f1 = _f1
-            best_w = _w
-        del _pred
+    # base prediction
+    _pred = pd.DataFrame()
+    cols_pred=[]
+    for i in range(0,12):
+        _pred['pred_{}'.format(i)] = 0.5*pred_lgbm['pred_lgbm_plans{}'.format(i)]+ 0.5*pred_xgb['pred_xgb_plans{}'.format(i)]
+        cols_pred.append('pred_{}'.format(i))
 
-    # plot thresholds
-    plt.figure()
-    plt.plot(search_range, f1s)
-    plt.savefig(output)
+    # base score
+    best_f1=f1_score(act, np.argmax(_pred[cols_pred].values,axis=1),average='weighted')
 
-    return best_w
+    # get best weights for each classes
+    for i in range(0,12):
+        f1s = []
+        for _w in search_range:
+            tmp_pred = _pred[cols_pred]
+            tmp_pred['pred_{}'.format(i)] = _w*pred_lgbm['pred_lgbm_plans{}'.format(i)]+ (1.0-_w)*pred_xgb['pred_xgb_plans{}'.format(i)]
+
+            # calc f1 score
+            _f1 = f1_score(act, np.argmax(tmp_pred.values,axis=1),average='weighted')
+            f1s.append(_f1)
+            print('class: {}, w: {}, f1 score: {}'.format(i,_w,_f1))
+            if _f1 > best_f1:
+                best_f1 = _f1
+                best_w = _w
+
+            del tmp_pred
+
+        # save weights & predicted values
+        best_weights.append(best_w)
+        _pred['pred_{}'.format(i)] = best_w*pred_lgbm['pred_lgbm_plans{}'.format(i)]+ (1.0-best_w)*pred_xgb['pred_xgb_plans{}'.format(i)]
+
+        # plot thresholds
+        plt.figure()
+        plt.plot(search_range, f1s)
+        plt.savefig('../imp/weight{}.png'.format(i))
+
+    return best_weights

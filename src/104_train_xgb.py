@@ -198,6 +198,6 @@ def main(debug=False):
 if __name__ == "__main__":
     submission_file_name = "../output/submission_xgb.csv"
     oof_file_name = "../output/oof_xgb.csv"
-    configs = json.load(open('../configs/105_xgb.json'))
+    configs = json.load(open('../configs/104_xgb.json'))
     with timer("Full model run"):
         main(debug=False)
