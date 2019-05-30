@@ -14,7 +14,7 @@ from tqdm import tqdm
 #==============================================================================
 
 # num folds
-NUM_FOLDS = 5
+NUM_FOLDS = 10
 
 # features excluded
 FEATS_EXCLUDED = ['index', 'sid', 'pid', 'click_mode', 'plan_time', 'req_time']
@@ -236,3 +236,33 @@ def getBestMultiple(pred_df, col, cols_pred, output):
     plt.savefig(output)
 
     return best_m
+
+# search a best weight for 2 predictions
+def getBestWeights(act, pred_lgbm, pred_xgb, output):
+    search_range = np.arange(0.3, 0.6, 0.005)
+    best_f1=0.0
+    best_w = 0.5
+    f1s = []
+    for _w in search_range:
+        # get predictions for each class
+        cols_pred=[]
+        _pred = pd.DataFrame()
+        for i in range(0,12):
+            _pred['pred_{}'.format(i)] = _w*pred_lgbm['pred_lgbm_plans{}'.format(i)]+ (1.0-_w)*pred_xgb['pred_xgb_plans{}'.format(i)]
+            cols_pred.append('pred_{}'.format(i))
+
+        # calc f1 score
+        _f1 = f1_score(act, np.argmax(_pred[cols_pred].values,axis=1),average='weighted')
+        f1s.append(_f1)
+        print('w: {}, f1 score: {}'.format(_w,_f1))
+        if _f1 > best_f1:
+            best_f1 = _f1
+            best_w = _w
+        del _pred
+
+    # plot thresholds
+    plt.figure()
+    plt.plot(search_range, f1s)
+    plt.savefig(output)
+
+    return best_w
