@@ -5,3 +5,5 @@
 /src/__pycache__/
 /features/*.feather
 /features/*.pkl
+/features/plans/*.pkl
+/features/phase1

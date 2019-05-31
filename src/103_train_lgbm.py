@@ -87,7 +87,7 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
                 'boosting': 'gbdt',
                 'objective': 'multiclass',
                 'metric': 'multiclass',
-                'learning_rate': 0.01,
+                'learning_rate': 0.05,
                 'num_class': 12,
                 'num_leaves': 52,
                 'colsample_bytree': 0.3490457769968177,

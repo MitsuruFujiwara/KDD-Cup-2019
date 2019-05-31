@@ -18,7 +18,7 @@ warnings.filterwarnings('ignore')
 
 def main(num_rows=None):
     # load csv & pkl
-    profiles = pd.read_csv('../input/data_set_phase1/profiles.csv')
+    profiles = pd.read_csv('../input/data_set_phase2/profiles.csv')
 
     # change columns name
     profiles.columns = ['pid']+['profile_{}'.format(i) for i in range(0,66)]

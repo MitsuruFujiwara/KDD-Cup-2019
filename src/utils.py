@@ -1,12 +1,16 @@
 
+import gc
 import json
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import os
 import requests
 import pickle
 
+from glob import glob
 from sklearn.metrics import f1_score
+from sklearn.model_selection import KFold
 from tqdm import tqdm
 
 #==============================================================================
@@ -14,7 +18,7 @@ from tqdm import tqdm
 #==============================================================================
 
 # num folds
-NUM_FOLDS = 10
+NUM_FOLDS = 5
 
 # features excluded
 FEATS_EXCLUDED = ['index', 'sid', 'pid', 'click_mode', 'plan_time', 'req_time']

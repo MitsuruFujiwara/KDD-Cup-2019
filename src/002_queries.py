@@ -19,9 +19,9 @@ warnings.filterwarnings('ignore')
 
 def main(num_rows=None):
     # load csv
-    train_queries = pd.read_csv('../input/data_set_phase1/train_queries.csv',nrows=num_rows)
-    test_queries = pd.read_csv('../input/data_set_phase1/test_queries.csv',nrows=num_rows)
-    train_clicks = pd.read_csv('../input/data_set_phase1/train_clicks.csv')
+    train_queries = pd.read_csv('../input/data_set_phase2/train_queries_phase2.csv',nrows=num_rows)
+    test_queries = pd.read_csv('../input/data_set_phase2/test_queries.csv',nrows=num_rows)
+    train_clicks = pd.read_csv('../input/data_set_phase2/train_clicks_phase2.csv')
 
     # merge click
     train_queries = pd.merge(train_queries, train_clicks[['sid','click_mode']], on='sid', how='left')

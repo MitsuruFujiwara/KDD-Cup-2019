@@ -8,7 +8,7 @@ import warnings
 from chinese_calendar import is_holiday
 from tqdm import tqdm
 
-from utils import loadJSON, FlattenDataSimple, save2pkl, line_notify, targetEncodingMultiClass
+from utils import loadJSON, FlattenDataSimple, to_pickles, line_notify, targetEncodingMultiClass
 
 warnings.filterwarnings('ignore')
 
@@ -18,9 +18,9 @@ warnings.filterwarnings('ignore')
 
 def main(num_rows=None):
     # load csv
-    train_plans = pd.read_csv('../input/data_set_phase1/train_plans.csv',nrows=num_rows)
-    test_plans = pd.read_csv('../input/data_set_phase1/test_plans.csv',nrows=num_rows)
-    train_clicks = pd.read_csv('../input/data_set_phase1/train_clicks.csv')
+    train_plans = pd.read_csv('../input/data_set_phase2/train_plans_phase2.csv',nrows=num_rows)
+    test_plans = pd.read_csv('../input/data_set_phase2/test_plans.csv',nrows=num_rows)
+    train_clicks = pd.read_csv('../input/data_set_phase2/train_clicks_phase2.csv')
 
     # merge click
     train_plans = pd.merge(train_plans, train_clicks[['sid','click_mode']], on='sid', how='left')
@@ -398,7 +398,7 @@ def main(num_rows=None):
     plans_df = targetEncodingMultiClass(plans_df, 'click_mode', cols_target_encoding)
 
     # save as pkl
-    save2pkl('../features/plans.pkl', plans_df)
+    to_pickles(plans_df, '../features/plans', split_size=5)
 
     line_notify('{} finished.'.format(sys.argv[0]))
 

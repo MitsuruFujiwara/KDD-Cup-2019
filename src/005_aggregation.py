@@ -10,7 +10,7 @@ import warnings
 
 from tqdm import tqdm
 
-from utils import loadpkl, to_feature, to_json, line_notify
+from utils import loadpkl, read_pickles, to_feature, to_json, line_notify
 from utils import removeCorrelatedVariables, removeMissingVariables, targetEncodingMultiClass
 
 warnings.filterwarnings('ignore')
@@ -21,7 +21,7 @@ warnings.filterwarnings('ignore')
 
 def main(num_rows=None):
     # load pkls
-    df = loadpkl('../features/plans.pkl')
+    df = read_pickles('../features/plans')
     queries = loadpkl('../features/queries.pkl')
     profiles = loadpkl('../features/profiles.pkl')
     queries_pred = loadpkl('../features/queries_pred.pkl')

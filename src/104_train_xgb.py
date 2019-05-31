@@ -85,7 +85,7 @@ def kfold_xgboost(train_df,test_df,num_folds,stratified=False,debug=False):
                 'booster': 'gbtree',
                 'eval_metric':'mlogloss',
                 'num_class':12,
-                'eta': 0.01,
+                'eta': 0.05,
                 'colsample_bytree': 0.3490457769968177,
                 'subsample': 0.543646263362097,
                 'max_depth': 11,
