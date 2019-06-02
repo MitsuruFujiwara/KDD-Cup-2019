@@ -224,7 +224,7 @@ def getBestMultiple(pred_df, col, cols_pred, output):
     best_f1=0.0
     best_m = 1.0
     f1s = []
-    for _m in np.arange(1.0,2.0,0.01):
+    for _m in np.arange(1.0,3.0,0.01):
         tmp_pred = pred_df[cols_pred]
         tmp_pred[col] *= _m
         _f1 = f1_score(pred_df['click_mode'], np.argmax(tmp_pred.values,axis=1),average='weighted')
@@ -236,7 +236,7 @@ def getBestMultiple(pred_df, col, cols_pred, output):
         del tmp_pred
     # plot thresholds
     plt.figure()
-    plt.plot(np.arange(1.0,2.0,0.01), f1s)
+    plt.plot(np.arange(1.0,3.0,0.01), f1s)
     plt.savefig(output)
 
     return best_m
