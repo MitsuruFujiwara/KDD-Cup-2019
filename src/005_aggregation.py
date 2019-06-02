@@ -10,7 +10,7 @@ import warnings
 
 from tqdm import tqdm
 
-from utils import loadpkl, read_pickles, to_feature, to_json, line_notify
+from utils import loadpkl, read_pickles, to_feature, to_json, line_notify, reduce_mem_usage
 from utils import removeCorrelatedVariables, removeMissingVariables, targetEncodingMultiClass
 
 warnings.filterwarnings('ignore')
@@ -25,17 +25,17 @@ def main(num_rows=None):
     queries = loadpkl('../features/queries.pkl')
     profiles = loadpkl('../features/profiles.pkl')
     queries_pred = loadpkl('../features/queries_pred.pkl')
-    queries_profiles_pred = loadpkl('../features/queries_profiles_pred.pkl')
+#    queries_profiles_pred = loadpkl('../features/queries_profiles_pred.pkl')
 #    queries_plans_pred = loadpkl('../features/queries_plans_pred.pkl')
 
     # merge
     df = pd.merge(df, queries, on=['sid','click_mode'], how='left')
     df = pd.merge(df, profiles, on='pid', how='left')
     df = pd.merge(df, queries_pred, on='sid', how='left')
-    df = pd.merge(df, queries_profiles_pred, on='sid', how='left')
+#    df = pd.merge(df, queries_profiles_pred, on='sid', how='left')
 #    df = pd.merge(df, queries_plans_pred, on='sid', how='left')
 
-    del queries, profiles, queries_pred, queries_profiles_pred
+    del queries, profiles, queries_pred
     gc.collect()
 
     # count features
@@ -63,12 +63,13 @@ def main(num_rows=None):
             tmp += (df[c]==i).astype(int)
 
         cols_target = [c for c in df.columns if '_target_{}'.format(i) in c]
-        for c in cols_target+['pred_queries{}'.format(i),'pred_queries_profiles{}'.format(i)]:
+#        for c in cols_target+['pred_queries{}'.format(i),'pred_queries_profiles{}'.format(i)]:
+        for c in cols_target+['pred_queries{}'.format(i)]:
             df[c]=df[c]*(tmp>0)
 
     # stats features for preds
     cols_pred_queries = ['pred_queries{}'.format(i) for i in range(0,12)]
-    cols_pred_queries_profiles = ['pred_queries_profiles{}'.format(i) for i in range(0,12)]
+#    cols_pred_queries_profiles = ['pred_queries_profiles{}'.format(i) for i in range(0,12)]
 #    cols_pred_queries_plans = ['pred_queries_plans{}'.format(i) for i in range(0,12)]
 
     df['pred_queries_mean'] = df[cols_pred_queries].mean(axis=1)
@@ -78,25 +79,19 @@ def main(num_rows=None):
     df['pred_queries_var'] = df[cols_pred_queries].var(axis=1)
     df['pred_queries_skew'] = df[cols_pred_queries].skew(axis=1)
 
+    """
     df['pred_queries_profiles_mean'] = df[cols_pred_queries_profiles].mean(axis=1)
     df['pred_queries_profiles_sum'] = df[cols_pred_queries_profiles].sum(axis=1)
     df['pred_queries_profiles_max'] = df[cols_pred_queries_profiles].max(axis=1)
     df['pred_queries_profiles_min'] = df[cols_pred_queries_profiles].min(axis=1)
     df['pred_queries_profiles_var'] = df[cols_pred_queries_profiles].var(axis=1)
     df['pred_queries_profiles_skew'] = df[cols_pred_queries_profiles].skew(axis=1)
-
-    """
-    df['pred_queries_plans_mean'] = df[cols_pred_queries_plans].mean(axis=1)
-    df['pred_queries_plans_sum'] = df[cols_pred_queries_plans].sum(axis=1)
-    df['pred_queries_plans_max'] = df[cols_pred_queries_plans].max(axis=1)
-    df['pred_queries_plans_min'] = df[cols_pred_queries_plans].min(axis=1)
-    df['pred_queries_plans_var'] = df[cols_pred_queries_plans].var(axis=1)
-    df['pred_queries_plans_skew'] = df[cols_pred_queries_plans].skew(axis=1)
     """
 
     # stats features for each classes
     print('stats features...')
     for i in tqdm(range(0,12)):
+        """
         cols = ['pred_queries{}'.format(i),'pred_queries_profiles{}'.format(i)]
         df['pred_mean{}'.format(i)] = df[cols].mean(axis=1)
         df['pred_sum{}'.format(i)] = df[cols].sum(axis=1)
@@ -104,6 +99,7 @@ def main(num_rows=None):
         df['pred_min{}'.format(i)] = df[cols].min(axis=1)
         df['pred_var{}'.format(i)] = df[cols].var(axis=1)
         df['pred_skew{}'.format(i)] = df[cols].skew(axis=1)
+        """
 
         cols_target = [c for c in df.columns if '_target_{}'.format(i) in c]
         df['target_mean{}'.format(i)] = df[cols_target].mean(axis=1)
@@ -112,6 +108,14 @@ def main(num_rows=None):
         df['target_min{}'.format(i)] = df[cols_target].min(axis=1)
         df['target_var{}'.format(i)] = df[cols_target].var(axis=1)
         df['target_skew{}'.format(i)] = df[cols_target].skew(axis=1)
+
+    # reduce memory usage
+    df = reduce_mem_usage(df)
+
+    # change dtype
+    for col in df.columns.tolist():
+        if df[col].dtypes == 'float16':
+            df[col] = df[col].astype(np.float32)
 
     # remove missing variables
     col_missing = removeMissingVariables(df,0.75)

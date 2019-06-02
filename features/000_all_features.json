@@ -1,5 +1,6 @@
 {
     "features": [
+        "index",
         "sid",
         "plan_0_distance",
         "plan_0_price",
@@ -22,6 +23,7 @@
         "plan_weekday",
         "plan_hour",
         "plan_is_holiday",
+        "plan_weekday_hour",
         "plan_is_holiday_hour",
         "plan_time_diff",
         "plan_weekday_count",
