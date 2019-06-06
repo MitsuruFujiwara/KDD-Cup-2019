@@ -23,8 +23,16 @@ def main(num_rows=None):
     test_queries = pd.read_csv('../input/data_set_phase2/test_queries.csv',nrows=num_rows)
     train_clicks = pd.read_csv('../input/data_set_phase2/train_clicks_phase2.csv')
 
+    # phase 1 csv
+    train_queries1 = pd.read_csv('../input/data_set_phase1/train_queries.csv')
+    train_clicks1 = pd.read_csv('../input/data_set_phase1/train_clicks.csv')
+
     # merge click
     train_queries = pd.merge(train_queries, train_clicks[['sid','click_mode']], on='sid', how='left')
+    train_queries1 = pd.merge(train_queries1, train_clicks1[['sid','click_mode']], on='sid', how='left')
+
+    # merge phase 1 data
+    train_queries = train_queries1.append(train_queries)
 
     # fill na (no click)
     train_queries['click_mode'].fillna(0, inplace=True)
@@ -35,7 +43,7 @@ def main(num_rows=None):
     # merge train & test
     queries_df = train_queries.append(test_queries)
 
-    del train_queries, test_queries
+    del train_queries, test_queries, train_queries1, train_clicks, train_clicks1
     gc.collect()
 
     # to datetime

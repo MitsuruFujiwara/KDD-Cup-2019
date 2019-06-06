@@ -7,3 +7,6 @@
 /features/*.pkl
 /features/plans/*.pkl
 /features/phase1
+/features/feats1/*.feather
+/features/feats2/*.feather
+/features/feats3/*.feather

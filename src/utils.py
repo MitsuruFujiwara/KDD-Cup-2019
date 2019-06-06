@@ -203,6 +203,8 @@ def targetEncodingMultiClass(df, col_target, cols_encoding):
         df_grouped = df_target[[c]+cols_dummies].groupby(c).mean()
         for i,d in enumerate(cols_dummies):
             df['{}_target_{}'.format(c,i)] = df[c].map(df_grouped[d])
+        del df_grouped
+        gc.collect()
     return df
 
 # scaling predictions

@@ -8,7 +8,7 @@ import warnings
 from chinese_calendar import is_holiday
 from tqdm import tqdm
 
-from utils import loadJSON, FlattenDataSimple, to_pickles, line_notify, targetEncodingMultiClass
+from utils import loadJSON, FlattenDataSimple, to_pickles, line_notify, targetEncodingMultiClass, reduce_mem_usage
 
 warnings.filterwarnings('ignore')
 
@@ -22,8 +22,16 @@ def main(num_rows=None):
     test_plans = pd.read_csv('../input/data_set_phase2/test_plans.csv',nrows=num_rows)
     train_clicks = pd.read_csv('../input/data_set_phase2/train_clicks_phase2.csv')
 
+    # phase 1 csv
+    train_plans1 = pd.read_csv('../input/data_set_phase1/train_plans.csv')
+    train_clicks1 = pd.read_csv('../input/data_set_phase1/train_clicks.csv')
+
     # merge click
     train_plans = pd.merge(train_plans, train_clicks[['sid','click_mode']], on='sid', how='left')
+    train_plans1 = pd.merge(train_plans1, train_clicks1[['sid','click_mode']], on='sid', how='left')
+
+    # merge phase 1 data
+    train_plans = train_plans1.append(train_plans)
 
     # fill na (no click)
     train_plans['click_mode'].fillna(0, inplace=True)
@@ -34,7 +42,7 @@ def main(num_rows=None):
     # merge train & test
     plans = train_plans.append(test_plans)
 
-    del train_plans, test_plans
+    del train_plans, test_plans, train_plans1, train_clicks, train_clicks1
     gc.collect()
 
     # reset index
@@ -50,6 +58,12 @@ def main(num_rows=None):
 
     # merge plan_time & click_mode
     plans_df = pd.merge(plans_df.reset_index(), plans[['sid','plan_time', 'click_mode']], on='sid',how='outer')
+
+    del plans
+    gc.collect()
+
+    # reduce memory usage
+    plans_df = reduce_mem_usage(plans_df)
 
     # cleaning
     for c in plans_df.columns.to_list():

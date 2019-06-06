@@ -21,7 +21,7 @@ from utils import line_notify, loadpkl, eval_f, save2pkl
 from utils import NUM_FOLDS, FEATS_EXCLUDED, CAT_COLS
 
 #==============================================================================
-# Traing LightGBM (all features)
+# Traing LightGBM (for city 2)
 #==============================================================================
 
 warnings.filterwarnings('ignore')
@@ -116,7 +116,7 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
                         )
 
         # save model
-        clf.save_model('../output/lgbm_'+str(n_fold)+'.txt')
+        clf.save_model('../output/lgbm_2_{}.txt'.format(n_fold))
 
         oof_preds[valid_idx] = clf.predict(valid_x, num_iteration=clf.best_iteration)
         sub_preds += clf.predict(test_df[feats], num_iteration=clf.best_iteration) / folds.n_splits
@@ -137,8 +137,8 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
 
     # display importances
     display_importances(feature_importance_df,
-                        '../imp/lgbm_importances.png',
-                        '../imp/feature_importance_lgbm.csv')
+                        '../imp/lgbm_importances_2.png',
+                        '../imp/feature_importance_lgbm_2.csv')
 
     if not debug:
         # save prediction for submit
@@ -172,14 +172,14 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
         df = oof_preds.append(sub_preds)
 
         # save as pkl
-        save2pkl('../features/lgbm_pred.pkl', df)
+        save2pkl('../features/lgbm_pred_2.pkl', df)
 
         line_notify('{} finished.'.format(sys.argv[0]))
 
 def main(debug=False):
     with timer("Load Datasets"):
         # load feathers
-        files = sorted(glob('../features/*.feather'))
+        files = sorted(glob('../features/feats2/*.feather'))
         df = pd.concat([pd.read_feather(f) for f in tqdm(files, mininterval=60)], axis=1)
 
         # use selected features
@@ -202,8 +202,8 @@ def main(debug=False):
         kfold_lightgbm(train_df, test_df, num_folds=NUM_FOLDS, stratified=True, debug=debug)
 
 if __name__ == "__main__":
-    submission_file_name = "../output/submission_lgbm.csv"
-    oof_file_name = "../output/oof_lgbm.csv"
+    submission_file_name = "../output/submission_lgbm_2.csv"
+    oof_file_name = "../output/oof_lgbm_2.csv"
     configs = json.load(open('../configs/103_lgbm.json'))
     with timer("Full model run"):
         main(debug=False)

@@ -26,14 +26,12 @@ def main(num_rows=None):
     profiles = loadpkl('../features/profiles.pkl')
     queries_pred = loadpkl('../features/queries_pred.pkl')
     queries_profiles_pred = loadpkl('../features/queries_profiles_pred.pkl')
-#    queries_plans_pred = loadpkl('../features/queries_plans_pred.pkl')
 
     # merge
     df = pd.merge(df, queries, on=['sid','click_mode'], how='left')
     df = pd.merge(df, profiles, on='pid', how='left')
     df = pd.merge(df, queries_pred, on='sid', how='left')
     df = pd.merge(df, queries_profiles_pred, on='sid', how='left')
-#    df = pd.merge(df, queries_plans_pred, on='sid', how='left')
 
     del queries, profiles, queries_pred, queries_profiles_pred
     gc.collect()
@@ -64,13 +62,11 @@ def main(num_rows=None):
 
         cols_target = [c for c in df.columns if '_target_{}'.format(i) in c]
         for c in cols_target+['pred_queries{}'.format(i),'pred_queries_profiles{}'.format(i)]:
-#        for c in cols_target+['pred_queries{}'.format(i)]:
             df[c]=df[c]*(tmp>0)
 
     # stats features for preds
     cols_pred_queries = ['pred_queries{}'.format(i) for i in range(0,12)]
     cols_pred_queries_profiles = ['pred_queries_profiles{}'.format(i) for i in range(0,12)]
-#    cols_pred_queries_plans = ['pred_queries_plans{}'.format(i) for i in range(0,12)]
 
     df['pred_queries_mean'] = df[cols_pred_queries].mean(axis=1)
     df['pred_queries_sum'] = df[cols_pred_queries].sum(axis=1)
@@ -122,7 +118,9 @@ def main(num_rows=None):
     df.drop(col_drop, axis=1, inplace=True)
 
     # save as feather
-    to_feature(df, '../features')
+    to_feature(df[df['y_o']>37.5], '../features/feats1') # model 1
+    to_feature(df[df['y_o']<27.5], '../features/feats2') # model 2
+    to_feature(df[df['x_o']<120.0], '../features/feats3') # model 3
 
     # save feature name list
     features_json = {'features':df.columns.tolist()}

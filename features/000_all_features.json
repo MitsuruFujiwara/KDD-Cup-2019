@@ -1,6 +1,5 @@
 {
     "features": [
-        "index",
         "sid",
         "plan_0_distance",
         "plan_0_price",
@@ -811,6 +810,7 @@
         "y_o_round",
         "x_d_round",
         "y_d_round",
+        "queries_distance_round",
         "queries_x_o_round_count",
         "queries_y_o_round_count",
         "queries_x_d_round_count",
