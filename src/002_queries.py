@@ -9,7 +9,7 @@ import warnings
 from chinese_calendar import is_holiday
 from sklearn.decomposition import TruncatedSVD
 
-from utils import save2pkl, to_json, line_notify, targetEncodingMultiClass
+from utils import save2pkl, to_json, line_notify, targetEncodingMultiClass, reduce_mem_usage
 
 warnings.filterwarnings('ignore')
 
@@ -24,8 +24,8 @@ def main(num_rows=None):
     train_clicks = pd.read_csv('../input/data_set_phase2/train_clicks_phase2.csv')
 
     # phase 1 csv
-    train_queries1 = pd.read_csv('../input/data_set_phase1/train_queries.csv')
-    train_clicks1 = pd.read_csv('../input/data_set_phase1/train_clicks.csv')
+    train_queries1 = pd.read_csv('../input/data_set_phase2/train_queries_phase1.csv')
+    train_clicks1 = pd.read_csv('../input/data_set_phase2/train_clicks_phase1.csv')
 
     # merge click
     train_queries = pd.merge(train_queries, train_clicks[['sid','click_mode']], on='sid', how='left')
@@ -138,6 +138,9 @@ def main(num_rows=None):
                  'o_is_holiday','o_weekday','o_hour','d_is_holiday','d_weekday','d_hour',
                  'o_round','d_round','o_d_round']
     queries_df.drop(cols_drop, axis=1, inplace=True)
+
+    # reduce memory usage
+    queries_df = reduce_mem_usage(queries_df)
 
     # save as pkl
     save2pkl('../features/queries.pkl', queries_df)

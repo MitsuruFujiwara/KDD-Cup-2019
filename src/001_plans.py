@@ -23,8 +23,8 @@ def main(num_rows=None):
     train_clicks = pd.read_csv('../input/data_set_phase2/train_clicks_phase2.csv')
 
     # phase 1 csv
-    train_plans1 = pd.read_csv('../input/data_set_phase1/train_plans.csv')
-    train_clicks1 = pd.read_csv('../input/data_set_phase1/train_clicks.csv')
+    train_plans1 = pd.read_csv('../input/data_set_phase2/train_plans_phase1.csv')
+    train_clicks1 = pd.read_csv('../input/data_set_phase2/train_clicks_phase1.csv')
 
     # merge click
     train_plans = pd.merge(train_plans, train_clicks[['sid','click_mode']], on='sid', how='left')

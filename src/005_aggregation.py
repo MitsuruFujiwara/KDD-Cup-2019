@@ -36,6 +36,9 @@ def main(num_rows=None):
     del queries, profiles, queries_pred, queries_profiles_pred
     gc.collect()
 
+    # reduce memory usage
+    df = reduce_mem_usage(df)
+
     # count features
     df['pid_count'] = df['pid'].map(df['pid'].value_counts())
 
