@@ -52,21 +52,6 @@ def main(num_rows=None):
         df['plan_queries_distance_ratio{}'.format(i)] = df[c] / df['queries_distance']
         df['plan_queries_distance_diff{}'.format(i)] = df[c] - df['queries_distance']
 
-    # target encoding
-    df = targetEncodingMultiClass(df, 'click_mode', ['profile_k_means'])
-
-    # post processing
-    cols_transport_mode = ['plan_{}_transport_mode'.format(i) for i in range(0,7)]
-    print('post processing...')
-    for i in tqdm(range(1,12)):
-        tmp = np.zeros(len(df))
-        for c in cols_transport_mode:
-            tmp += (df[c]==i).astype(int)
-
-        cols_target = [c for c in df.columns if '_target_{}'.format(i) in c]
-        for c in cols_target+['pred_queries{}'.format(i),'pred_queries_profiles{}'.format(i)]:
-            df[c]=df[c]*(tmp>0)
-
     # stats features for preds
     cols_pred_queries = ['pred_queries{}'.format(i) for i in range(0,12)]
     cols_pred_queries_profiles = ['pred_queries_profiles{}'.format(i) for i in range(0,12)]
@@ -104,30 +89,85 @@ def main(num_rows=None):
         df['target_var{}'.format(i)] = df[cols_target].var(axis=1)
         df['target_skew{}'.format(i)] = df[cols_target].skew(axis=1)
 
+    # post processing
+    cols_transport_mode = ['plan_{}_transport_mode'.format(i) for i in range(0,7)]
+    print('post processing...')
+    for i in tqdm(range(1,12)):
+        tmp = np.zeros(len(df))
+        for c in cols_transport_mode:
+            tmp += (df[c]==i).astype(int)
+
+        cols_target = [c for c in df.columns if '_target_{}'.format(i) in c]
+        for c in cols_target+['pred_queries{}'.format(i),'pred_queries_profiles{}'.format(i)]:
+            df[c]=df[c]*(tmp>0)
+
     # reduce memory usage
     df = reduce_mem_usage(df)
 
-    # change dtype
-    for col in df.columns.tolist():
-        if df[col].dtypes == 'float16':
-            df[col] = df[col].astype(np.float32)
+    # split data by city
+    df1 = df[df['y_o']>37.5]
+    df2 = df[df['y_o']<27.5]
+    df3 = df[df['x_o']>120.0]
 
-    # remove missing variables
-    col_missing = removeMissingVariables(df,0.75)
-    df.drop(col_missing, axis=1, inplace=True)
+    del df
+    gc.collect()
 
-    # remove correlated variables
-    col_drop = removeCorrelatedVariables(df,0.95)
-    df.drop(col_drop, axis=1, inplace=True)
+    # cols for target encoding
+    cols_target_encoding = ['plan_weekday','plan_hour','plan_is_holiday',
+                            'plan_weekday_hour','plan_is_holiday_hour',
+                            'plan_num_plans', 'plan_num_free_plans',
+                            'x_o_round','y_o_round','x_d_round','y_d_round','queries_distance_round']
 
-    # save as feather
-    to_feature(df[df['y_o']>37.5], '../features/feats1') # model 1
-    to_feature(df[df['y_o']<27.5], '../features/feats2') # model 2
-    to_feature(df[df['x_o']<120.0], '../features/feats3') # model 3
+    cols_ratio_plan = ['plan_price_distance_ratio_max_plan','plan_price_distance_ratio_min_plan',
+                       'plan_price_eta_ratio_max_plan','plan_price_eta_ratio_min_plan',
+                       'plan_distance_eta_ratio_max_plan', 'plan_distance_eta_ratio_min_plan',
+                       'plan_price_distance_prod_max_plan', 'plan_price_eta_prod_max_plan',
+                       'plan_price_distance_prod_min_plan', 'plan_price_eta_prod_min_plan',
+                       'plan_distance_eta_prod_max_plan', 'plan_distance_eta_prod_min_plan',
+                       'plan_price_distance_eta_prod_max_plan', 'plan_price_distance_eta_prod_min_plan',
+                       'plan_distance_ratio_0_max_plan', 'plan_distance_ratio_0_min_plan',
+                       'plan_price_ratio_0_max_plan', 'plan_price_ratio_0_min_plan',
+                       'plan_eta_ratio_0_max_plan', 'plan_eta_ratio_0_min_plan',
+                       'plan_price_distance_prod_ratio_0_max_plan','plan_price_distance_prod_ratio_0_min_plan',
+                       'plan_price_eta_prod_ratio_0_max_plan','plan_price_eta_prod_ratio_0_min_plan',
+                       'plan_distance_eta_prod_ratio_0_max_plan', 'plan_distance_eta_prod_ratio_0_min_plan',
+                       'plan_price_distance_eta_prod_ratio_0_max_plan','plan_price_distance_eta_prod_ratio_0_min_plan']
 
-    # save feature name list
-    features_json = {'features':df.columns.tolist()}
-    to_json(features_json,'../features/000_all_features.json')
+    cols_min_max_plan = ['plan_distance_max_plan','plan_distance_min_plan',
+                         'plan_price_max_plan', 'plan_price_min_plan',
+                         'plan_eta_max_plan', 'plan_eta_min_plan']
+
+    cols_transport_mode = ['plan_{}_transport_mode'.format(i) for i in range(0,7)]
+
+    cols_target_encoding = cols_target_encoding + cols_ratio_plan + cols_min_max_plan + cols_transport_mode +['profile_k_means']
+
+    print('traget encoding...')
+    for i, df in tqdm(enumerate([df1,df2,df3])):
+        # target encoding
+        df = targetEncodingMultiClass(df, 'click_mode', cols_target_encoding)
+
+        # change dtype
+        for col in df.columns.tolist():
+            if df[col].dtypes == 'float16':
+                df[col] = df[col].astype(np.float32)
+
+        # remove missing variables
+        col_missing = removeMissingVariables(df,0.75)
+        df.drop(col_missing, axis=1, inplace=True)
+
+        # remove correlated variables
+        col_drop = removeCorrelatedVariables(df,0.95)
+        df.drop(col_drop, axis=1, inplace=True)
+
+        # save as feather
+        to_feature(df, '../features/feats{}'.format(i+1))
+
+        # save feature name list
+        features_json = {'features':df.columns.tolist()}
+        to_json(features_json,'../features/00{}_all_features.json'.format(i+1))
+
+        del df
+        gc.collect()
 
     line_notify('{} finished.'.format(sys.argv[0]))
 

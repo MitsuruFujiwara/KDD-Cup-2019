@@ -404,13 +404,6 @@ def main(num_rows=None):
     plans_df['plan_price_distance_eta_prod_ratio_0_max_plan_count'] = plans_df['plan_price_distance_eta_prod_ratio_0_max_plan'].map(plans_df['plan_price_distance_eta_prod_ratio_0_max_plan'].value_counts())
     plans_df['plan_price_distance_eta_prod_ratio_0_min_plan_count'] = plans_df['plan_price_distance_eta_prod_ratio_0_min_plan'].map(plans_df['plan_price_distance_eta_prod_ratio_0_min_plan'].value_counts())
 
-    # target encoding
-    cols_target_encoding = ['plan_weekday','plan_hour','plan_is_holiday',
-                            'plan_weekday_hour','plan_is_holiday_hour',
-                            'plan_num_plans', 'plan_num_free_plans']
-    cols_target_encoding = cols_target_encoding + cols_ratio_plan + cols_min_max_plan + cols_transport_mode
-    plans_df = targetEncodingMultiClass(plans_df, 'click_mode', cols_target_encoding)
-
     # save as pkl
     to_pickles(plans_df, '../features/plans', split_size=5)
 

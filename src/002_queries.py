@@ -137,6 +137,7 @@ def main(num_rows=None):
     cols_drop = ['o','d','o_d','o_d_is_holiday','o_d_weekday','o_d_hour',
                  'o_is_holiday','o_weekday','o_hour','d_is_holiday','d_weekday','d_hour',
                  'o_round','d_round','o_d_round']
+
     queries_df.drop(cols_drop, axis=1, inplace=True)
 
     # reduce memory usage
