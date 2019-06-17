@@ -60,36 +60,30 @@ def main():
 
         # calc prediction for each class
         cols_pred =[]
-        for i in range(0,12):
-            pred['pred_{}'.format(i)] = pred_lgbm['pred_lgbm_plans{}'.format(i)]
-            cols_pred.append('pred_{}'.format(i))
+        for j in range(0,12):
+            pred['pred_{}'.format(j)] = pred_lgbm['pred_lgbm_plans{}'.format(j)]
+            cols_pred.append('pred_{}'.format(j))
 
         # get out of fold values
         oof_pred = pred[pred['click_mode'].notnull()]
 
         # get best multiples
+        m0 = getBestMultiple(oof_pred,'pred_0',cols_pred,'../imp/multiple0_{}.png'.format(i+1))
+        pred['pred_0'] *= m0
+        oof_pred['pred_0'] *= m0
+
+        m3 = getBestMultiple(oof_pred,'pred_3',cols_pred,'../imp/multiple3_{}.png'.format(i+1))
+        pred['pred_3'] *= m3
+        oof_pred['pred_3'] *= m3
+
+        m4 = getBestMultiple(oof_pred,'pred_4',cols_pred,'../imp/multiple4_{}.png'.format(i+1))
+        pred['pred_4'] *= m4
+        oof_pred['pred_4'] *= m4
+
         m9 = getBestMultiple(oof_pred,'pred_9',cols_pred,'../imp/multiple9_{}.png'.format(i+1))
         pred['pred_9'] *= m9
         oof_pred['pred_9'] *= m9
 
-        """
-        # get best multiples
-        m4 = getBestMultiple(oof_pred,'pred_4',cols_pred,'../imp/multiple4.png')
-        pred['pred_4'] *= m4
-        oof_pred['pred_4'] *= m4
-
-        m0 = getBestMultiple(oof_pred,'pred_0',cols_pred,'../imp/multiple0.png')
-        pred['pred_0'] *= m0
-        oof_pred['pred_0'] *= m0
-
-        m3 = getBestMultiple(oof_pred,'pred_3',cols_pred,'../imp/multiple3.png')
-        pred['pred_3'] *= m3
-        oof_pred['pred_3'] *= m3
-
-        m6 = getBestMultiple(oof_pred,'pred_6',cols_pred,'../imp/multiple6.png')
-        pred['pred_6'] *= m6
-        oof_pred['pred_6'] *= m6
-        """
         # get recommend mode
         pred['recommend_mode'] = np.argmax(pred[cols_pred].values,axis=1)
 
