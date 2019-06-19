@@ -30,7 +30,7 @@ def main():
     cols_transport_mode = ['plan_{}_transport_mode'.format(i) for i in range(0,7)]
 
     # remove columns
-    cols_drop = [c for c in plans.columns if c not in cols_transport_mode+['sid','plan_num_plans']]
+    cols_drop = [c for c in plans.columns if c not in cols_transport_mode+['sid','plan_num_plans','click_mode']]
     plans.drop(cols_drop,axis=1,inplace=True)
 
     # postprocessing
@@ -40,7 +40,7 @@ def main():
 
         # merge plans & pred
         pred = pred_lgbm[['sid','click_mode']]
-        pred = pd.merge(pred, plans, on='sid', how='left')
+        pred = pd.merge(pred, plans[cols_transport_mode+['sid','plan_num_plans']], on='sid', how='left')
 
         # scaling predictions
         pred_lgbm[cols_pred_lgbm] = scalingPredictions(pred_lgbm[cols_pred_lgbm])
@@ -49,11 +49,11 @@ def main():
         pred_lgbm.reset_index(inplace=True,drop=True)
 
         # fill predictions for non-exist plans as zero
-        for i in range(1,12):
+        for j in range(1,12):
             tmp = np.zeros(len(pred))
             for c in cols_transport_mode:
-                tmp += (pred[c]==i).astype(int)
-            pred_lgbm['pred_lgbm_plans{}'.format(i)]=pred_lgbm['pred_lgbm_plans{}'.format(i)]*(tmp>0)
+                tmp += (pred[c]==j).astype(int)
+            pred_lgbm['pred_lgbm_plans{}'.format(j)]=pred_lgbm['pred_lgbm_plans{}'.format(j)]*(tmp>0)
 
         # get best weight for lgbm & xgboost
         oof_pred_lgbm = pred_lgbm[pred_lgbm['click_mode'].notnull()]
@@ -67,6 +67,7 @@ def main():
         # get out of fold values
         oof_pred = pred[pred['click_mode'].notnull()]
 
+        """
         # get best multiples
         m0 = getBestMultiple(oof_pred,'pred_0',cols_pred,'../imp/multiple0_{}.png'.format(i+1))
         pred['pred_0'] *= m0
@@ -83,7 +84,7 @@ def main():
         m9 = getBestMultiple(oof_pred,'pred_9',cols_pred,'../imp/multiple9_{}.png'.format(i+1))
         pred['pred_9'] *= m9
         oof_pred['pred_9'] *= m9
-
+        """
         # get recommend mode
         pred['recommend_mode'] = np.argmax(pred[cols_pred].values,axis=1)
 
@@ -103,11 +104,13 @@ def main():
     # merge preds
     sub_pred = sub_preds[0].append(sub_preds[1])
     sub_pred = sub_pred.append(sub_preds[2])
+    sub_pred = pd.merge(plans[plans['click_mode'].isnull()][['sid','click_mode']],sub_pred[['sid','recommend_mode']], on='sid', how='left')
 
     oof_pred = oof_preds[0].append(oof_preds[1])
     oof_pred = oof_pred.append(oof_preds[2])
+    oof_pred = pd.merge(plans[plans['click_mode'].notnull()][['sid','click_mode']],oof_pred[['sid','recommend_mode']], on='sid', how='left')
 
-    del sub_preds, oof_preds
+    del sub_preds, oof_preds, plans
 
     # out of fold score
     oof_f1_score = f1_score(oof_pred['click_mode'], oof_pred['recommend_mode'],average='weighted')

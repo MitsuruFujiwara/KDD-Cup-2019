@@ -204,6 +204,6 @@ def main(debug=False):
 if __name__ == "__main__":
     submission_file_name = "../output/submission_lgbm_2.csv"
     oof_file_name = "../output/oof_lgbm_2.csv"
-    configs = json.load(open('../configs/103_lgbm.json'))
+    configs = json.load(open('../configs/104_lgbm.json'))
     with timer("Full model run"):
         main(debug=False)
