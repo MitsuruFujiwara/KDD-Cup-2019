@@ -21,7 +21,7 @@ from utils import line_notify, loadpkl, eval_f, save2pkl
 from utils import NUM_FOLDS, FEATS_EXCLUDED, CAT_COLS
 
 #==============================================================================
-# Traing XGBoost (all features)
+# Traing XGBoost (not used in phase2)
 #==============================================================================
 
 warnings.filterwarnings('ignore')

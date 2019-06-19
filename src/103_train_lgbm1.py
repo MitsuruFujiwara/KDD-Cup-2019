@@ -21,7 +21,7 @@ from utils import line_notify, loadpkl, eval_f, save2pkl
 from utils import NUM_FOLDS, FEATS_EXCLUDED, CAT_COLS
 
 #==============================================================================
-# Traing LightGBM (for city 1)
+# Traing LightGBM (city 1)
 #==============================================================================
 
 warnings.filterwarnings('ignore')
@@ -82,12 +82,11 @@ def kfold_lightgbm(train_df,test_df,num_folds,stratified=False,debug=False):
         # params
         params ={
                 'device' : 'gpu',
-#                'gpu_use_dp':True,
                 'task': 'train',
                 'boosting': 'gbdt',
                 'objective': 'multiclass',
                 'metric': 'multiclass',
-                'learning_rate': 0.05,
+                'learning_rate': 0.01,
                 'num_class': 12,
                 'num_leaves': 52,
                 'colsample_bytree': 0.3490457769968177,

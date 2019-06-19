@@ -141,8 +141,10 @@ def main(num_rows=None):
 
     cols_target_encoding = cols_target_encoding + cols_ratio_plan + cols_min_max_plan + cols_transport_mode +['profile_k_means']
 
+    # target encoding for each cities
     print('traget encoding...')
     for i, df in tqdm(enumerate([df1,df2,df3])):
+
         # target encoding
         df = targetEncodingMultiClass(df, 'click_mode', cols_target_encoding)
 

@@ -21,7 +21,7 @@ from utils import line_notify, loadpkl, eval_f, save2pkl
 from utils import NUM_FOLDS, FEATS_EXCLUDED, CAT_COLS
 
 #==============================================================================
-# Traing LightGBM (for city 3)
+# Traing LightGBM (city 3)
 #==============================================================================
 
 warnings.filterwarnings('ignore')
