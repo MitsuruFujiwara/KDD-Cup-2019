@@ -67,7 +67,6 @@ def main():
         # get out of fold values
         oof_pred = pred[pred['click_mode'].notnull()]
 
-        """
         # get best multiples
         m0 = getBestMultiple(oof_pred,'pred_0',cols_pred,'../imp/multiple0_{}.png'.format(i+1))
         pred['pred_0'] *= m0
@@ -80,7 +79,7 @@ def main():
         m4 = getBestMultiple(oof_pred,'pred_4',cols_pred,'../imp/multiple4_{}.png'.format(i+1))
         pred['pred_4'] *= m4
         oof_pred['pred_4'] *= m4
-        """
+
         # get recommend mode
         pred['recommend_mode'] = np.argmax(pred[cols_pred].values,axis=1)
 
