@@ -83,7 +83,7 @@ def main():
         # get recommend mode
         pred['recommend_mode'] = np.argmax(pred[cols_pred].values,axis=1)
 
-        # if number of plans = 1 and recommend mode != 0, set recommend mode as plan 0 mode.
+        # if number of plans = 1 and recommend mode != 0, fill recommend mode with plan 0 mode.
         pred['recommend_mode'][(pred['plan_num_plans']==1)&(pred['recommend_mode']!=0)] = pred['plan_0_transport_mode'][(pred['plan_num_plans']==1)&(pred['recommend_mode']!=0)]
 
         # split train & test
