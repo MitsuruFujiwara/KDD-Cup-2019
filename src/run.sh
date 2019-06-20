@@ -6,7 +6,7 @@
 #python 101_train_lgbm_queries.py
 #python 102_train_lgbm_queries_profiles.py
 #python 005_aggregation.py
-python 103_train_lgbm1.py
+python 105_train_lgbm3.py
 #python 104_train_lgbm2.py
-#python 105_train_lgbm3.py
+python 103_train_lgbm1.py
 python 202_blend_phase2.py
