@@ -12,7 +12,6 @@ See [phase1 final version](https://github.com/MitsuruFujiwara/KDD-Cup-2019/tree/
 ### Features
 
 ### Post Processing
-
 ## Phase2
 ### Result
 Best weighted F1 score was 0.69362814 on LB
