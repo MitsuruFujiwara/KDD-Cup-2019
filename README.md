@@ -14,7 +14,7 @@ See [phase1 final version](https://github.com/MitsuruFujiwara/KDD-Cup-2019/tree/
 ![lb_phase1](img/lb_phase1.png)
 
 ### Model Pipeline
-![phase1_model_pipeline](img/phase1_model_pipeline.eps)
+![phase1_model_pipeline](img/phase1_model_pipeline.png)
 
 ### Key Findings
 #### Sub Model
@@ -31,7 +31,7 @@ By adding these predictions to features,
 ![lb_phase2](img/lb_phase2.png)
 
 ### Model Pipeline
-In phase2,
+![phase2_model_pipeline](img/phase2_model_pipeline.png)
 ### Features
 
 ### Post Processing
