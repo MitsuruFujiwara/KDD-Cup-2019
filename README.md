@@ -14,9 +14,12 @@ I ranked 57th place at phase1 and 52nd at phase2.
 Model Pipeline is as below.  
 I used LightGBM and XGBoost  
 See [phase1 final version](https://github.com/MitsuruFujiwara/KDD-Cup-2019/tree/7f538fd0785118cd6e8fd120023152872357023e) for details.
-### Features
+### Key Findings
+#### Features
 
-### Post Processing
+#### Sub Model
+
+#### Post Processing
 ## Phase2
 ### Result
 52nd place of 100teams.
