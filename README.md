@@ -23,7 +23,7 @@ See [features I used](https://github.com/MitsuruFujiwara/KDD-Cup-2019/blob/7f538
 The most important feature was plan_0_transport_mode.
 In phase1, people clicks plan_0_transport_mode in about 60% of sessions (it means people likely to ckick a plan displayed on the top?).
 I also used count & target encoded features for these categorical variables.
-With the features, my best single model scored 0.6925 on LB.
+As a result, my best single model scored 0.6925 on LB.
 - Sub Models  
 I prepared two sub models, one trained by queries and the other by queries & profiles.
 By adding their outputs to the main model's features, LB score improved from 0.6925 to 0.6945.
