@@ -21,7 +21,7 @@ See [phase1 final version](https://github.com/MitsuruFujiwara/KDD-Cup-2019/tree/
 - Features  
 See [features I used](https://github.com/MitsuruFujiwara/KDD-Cup-2019/blob/7f538fd0785118cd6e8fd120023152872357023e/features/000_all_features.json).
 The most important feature was plan_0_transport_mode.
-In phase1, people clicks plan_0_transport_mode in about 60% of sessions (it means people likely to ckick a plan displayed on the top?).
+In phase1, people click plan_0_transport_mode in about 60% of sessions (it means people likely to click a plan displayed on the top?).
 I also used count & target encoded features for these categorical variables.
 As a result, my best single model scored 0.6925 on LB.
 - Sub Models  
